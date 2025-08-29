@@ -23,23 +23,25 @@
 // Notes
 // - Ensure all functions are properly documented.
 // - Consider edge cases for localStorage access and data retrieval.
-
 // - Implement error handling for data retrieval and parsing.
 // Create DOM elements for the homepage
+
+// Loading screen elements
+const loadingScreen = document.createElement('div');
+const loadingText = document.createElement('p');
+const loadingImage = document.createElement('img');
+
+// Loading screen error message elements
+const errorMessage = document.createElement('div');
+const errorText = document.createElement('p');
+const retryButton = document.createElement('button');
 
 // Homepage container
 const homepageContainer = document.createElement('div');
 const taskList = document.createElement('ul');
 const addTaskButton = document.createElement('button');
 const taskInput = document.createElement('input');
-// Loading screen elements
-const loadingScreen = document.createElement('div');
-const loadingText = document.createElement('p');
-const loadingImage = document.createElement('img');
-// Loading screen error message elements
-const errorMessage = document.createElement('div');
-const errorText = document.createElement('p');
-const retryButton = document.createElement('button');
+
 // home page elements
 const footer = document.createElement('footer');
 const header = document.createElement('header');
