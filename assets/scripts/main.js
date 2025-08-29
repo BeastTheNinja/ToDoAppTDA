@@ -32,11 +32,15 @@ const homepageContainer = document.createElement('div');
 const taskList = document.createElement('ul');
 const addTaskButton = document.createElement('button');
 const taskInput = document.createElement('input');
+// Loading screen elements
 const loadingScreen = document.createElement('div');
 const loadingText = document.createElement('p');
+const loadingImage = document.createElement('img');
+// Loading screen error message elements
 const errorMessage = document.createElement('div');
 const errorText = document.createElement('p');
 const retryButton = document.createElement('button');
+// home page elements
 const footer = document.createElement('footer');
 const header = document.createElement('header');
 const title = document.createElement('h1');
@@ -88,4 +92,17 @@ filterContainer.appendChild(filterAllButton);
 filterContainer.appendChild(filterActiveButton);
 filterContainer.appendChild(filterCompletedButton);
 filterContainer.appendChild(clearCompletedButton);
+
+
+// Loading screen
+loadingScreen.appendChild(loadingText);
+loadingScreen.appendChild(retryButton);
+loadingScreen.appendChild(loadingImage);
+
+// Error message elements
+errorMessage.appendChild(errorText);
+errorMessage.appendChild(retryButton);
+
+// loading screen initialization with import 
+
 
