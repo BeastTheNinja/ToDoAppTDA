@@ -1,4 +1,4 @@
-// appstart initialization
+// appstart initialization  export to main.js
 const appStart = () => {
     ppLoading();
 };
