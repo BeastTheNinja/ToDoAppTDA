@@ -115,14 +115,14 @@
     cursor: pointer;
 }
 .todo input {
-  display: none; /* skjul den rigtige checkbox */
+  display: none; /* hide the real checkbox */
 }
 .custom-checkbox img {
-  opacity: 0;   /* usynlig fra start */
-  pointer-events: none; /* så billedet ikke fanger klik */
+  opacity: 0;   /* invisible from start */
+  pointer-events: none; /* so the image doesn't catch clicks */
 }
 input[type="checkbox"]:checked ~ .custom-checkbox img {
-  opacity: 1; /* vises kun når checkbox er klikket */
+  opacity: 1; /* only shows when checkbox is clicked */
   background-color: var(--accent-color);
   border-radius: 100%;
 }
