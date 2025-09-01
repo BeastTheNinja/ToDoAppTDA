@@ -1,7 +1,27 @@
+// ------------------------------------TODODOM'EN-------------------------------------------------------------------------
 const todoForm = document.querySelector('form');
 const todoInput = document.getElementById('todo-input');
 const todoListUL = document.getElementById('todo-list');
+// ------------------------------------DARKMODE/LIGHTMODE-----------------------------------------------------------------
+const themeToggle = document.getElementById("theme-toggle");
+const body = document.body;
 
+// hent tema fra localStorage
+if(localStorage.getItem("theme") === "light") {
+  body.classList.add("light-theme");
+  themeToggle.checked = true; // flyt slideren til højre
+}
+
+themeToggle.addEventListener("change", () => {
+  body.classList.toggle("light-theme");
+  
+  if(body.classList.contains("light-theme")) {
+    localStorage.setItem("theme", "light");
+  } else {
+    localStorage.setItem("theme", "dark");
+  }
+});
+// -----------------------------------------------------------------------------------------------------------------------
 let allTodos = getTodos();
 updateTodoList();
 
