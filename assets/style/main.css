@@ -2,18 +2,18 @@
 /* #region dark mode light mode */
 :root {
   --background: #101114;
-  --primary-color: #1c1d20;   /* todo baggrund */
-  --secondary-color: #4a4d57; /* streget tekst */
-  --accent-color: #00ffc4;    /* grønlig accent */
-  --text-color: #f9f9f9;      /* lys tekst */
+  --primary-color: #1c1d20;   /* todo background */
+  --secondary-color: #4a4d57; /* strikethrough text */
+  --accent-color: #00ffc4;    /* greenish accent */
+  --text-color: #f9f9f9;      /* light text */
 }
 
 .light-theme {
   --background: #ffffff;
-  --primary-color: #4d4d4d;   /* todo baggrund */
-  --secondary-color: #000000; /* mørk grå til completed tasks */
-  --accent-color: #0077ff;    /* blå accent */
-  --text-color: #1a1a1a;      /* næsten sort tekst */
+  --primary-color: #4d4d4d;   /* todo background */
+  --secondary-color: #000000; /* dark gray for completed tasks */
+  --accent-color: #0077ff;    /* blue accent */
+  --text-color: #1a1a1a;      /* almost black text */
 }
 /* #endregion */
 /*#region  Global styles */
