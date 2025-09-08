@@ -1,10 +1,10 @@
 
 // -------------------- App State (Model) --------------------
-// Central state management for todos and theme
-// Possible feature: add user profiles, due dates, priorities, or tags to todos
+// Central state management for lists, todos, and theme
 const APP_STATE_KEY = 'appState';
 const AppState = {
-    todos: [], // Array of todo objects {text, completed}
+    lists: [], // Array of list objects {id, name, todos: [{text, completed}]}
+    selectedListId: null, // Currently selected list id
     theme: 'dark', // Current theme ('dark' or 'light')
     listeners: [], // Functions to call when state changes
     // Subscribe a function to state changes
@@ -15,28 +15,52 @@ const AppState = {
     notify() {
         this.listeners.forEach(fn => fn());
     },
-    // Add a new todo item to the list
+    // Add a new list
+    addList(name) {
+        const newList = { id: Date.now().toString(), name, todos: [] };
+        this.lists.push(newList);
+        this.selectedListId = newList.id;
+        this.saveState();
+        this.notify();
+    },
+    // Select a list by id
+    selectList(id) {
+        this.selectedListId = id;
+        this.saveState();
+        this.notify();
+    },
+    // Add a new todo to the selected list
     addTodo(text) {
-        this.todos.push({ text, completed: false });
-        this.saveState();
-        this.notify();
+        const list = this.lists.find(l => l.id === this.selectedListId);
+        if (list) {
+            list.todos.push({ text, completed: false });
+            this.saveState();
+            this.notify();
+        }
     },
-    // Remove a todo item by its index
+    // Remove a todo from the selected list by index
     deleteTodo(index) {
-        this.todos.splice(index, 1);
-        this.saveState();
-        this.notify();
+        const list = this.lists.find(l => l.id === this.selectedListId);
+        if (list) {
+            list.todos.splice(index, 1);
+            this.saveState();
+            this.notify();
+        }
     },
-    // Toggle the completed state of a todo
+    // Toggle the completed state of a todo in the selected list
     toggleTodo(index, completed) {
-        this.todos[index].completed = completed;
-        this.saveState();
-        this.notify();
+        const list = this.lists.find(l => l.id === this.selectedListId);
+        if (list) {
+            list.todos[index].completed = completed;
+            this.saveState();
+            this.notify();
+        }
     },
     // Save the current app state to localStorage
     saveState() {
         const state = {
-            todos: this.todos,
+            lists: this.lists,
+            selectedListId: this.selectedListId,
             theme: this.theme
         };
         localStorage.setItem(APP_STATE_KEY, JSON.stringify(state));
@@ -44,7 +68,8 @@ const AppState = {
     // Load app state from localStorage
     loadState() {
         const state = JSON.parse(localStorage.getItem(APP_STATE_KEY) || '{}');
-        this.todos = Array.isArray(state.todos) ? state.todos : [];
+        this.lists = Array.isArray(state.lists) ? state.lists : [];
+        this.selectedListId = state.selectedListId || null;
         this.theme = state.theme || 'dark';
     },
     // Set the theme and update state
@@ -64,10 +89,90 @@ const View = {
     todoListUL: document.getElementById('todo-list'), // UL element for todo list
     themeToggle: document.getElementById("theme-toggle"), // Theme toggle switch
     body: document.body, // Reference to <body>
-    // Render all todos in the list
+    homepage: null, // Will be created dynamically
+    // Render homepage with all lists
+    renderHomepage() {
+        // Hide todo form and list
+        if (this.todoForm) this.todoForm.style.display = 'none';
+        if (this.todoListUL) this.todoListUL.style.display = 'none';
+        // Hide back button if present
+        const backBtn = document.getElementById('back-home-btn');
+        if (backBtn) backBtn.style.display = 'none';
+        // Create homepage container if not exists
+        if (!this.homepage) {
+            this.homepage = document.createElement('div');
+            this.homepage.className = 'homepage';
+            this.body.querySelector('.wrapper').appendChild(this.homepage);
+        }
+        this.homepage.style.display = '';
+        this.homepage.innerHTML = '';
+        // If no lists, show empty state
+        const createListContainer = document.createElement('div');
+        createListContainer.className = 'create-list-container';
+        if (AppState.lists.length === 0) {
+            const emptyMsg = document.createElement('div');
+            emptyMsg.className = 'empty-msg';
+            emptyMsg.textContent = 'No lists found. Create a new list to continue.';
+            createListContainer.appendChild(emptyMsg);
+        }
+        // Add text field and button for new list creation
+        const newListInput = document.createElement('input');
+        newListInput.type = 'text';
+        newListInput.placeholder = 'Enter new list name';
+        newListInput.className = 'new-list-input';
+        const newListBtn = document.createElement('button');
+        newListBtn.textContent = 'Create New List';
+        newListBtn.className = 'new-list-btn';
+        newListBtn.onclick = () => {
+            const name = newListInput.value.trim();
+            if (name.length > 0) {
+                Controller.handleCreateList(name);
+                newListInput.value = '';
+            }
+        };
+        createListContainer.appendChild(newListInput);
+        createListContainer.appendChild(newListBtn);
+        this.homepage.appendChild(createListContainer);
+        // Show all lists if any
+        if (AppState.lists.length > 0) {
+            const listTitle = document.createElement('h2');
+            listTitle.textContent = 'Your Lists';
+            this.homepage.appendChild(listTitle);
+            const ul = document.createElement('ul');
+            ul.className = 'list-selector';
+            AppState.lists.forEach(list => {
+                const li = document.createElement('li');
+                li.className = 'list-item';
+                li.textContent = list.name;
+                li.onclick = () => Controller.handleSelectList(list.id);
+                ul.appendChild(li);
+            });
+            this.homepage.appendChild(ul);
+        }
+    },
+    // Render todos for the selected list
     renderTodos() {
+        // Hide homepage if present
+        if (this.homepage) this.homepage.style.display = 'none';
+        // Show form and todo list
+        if (this.todoForm) this.todoForm.style.display = '';
+        if (this.todoListUL) this.todoListUL.style.display = '';
+        // Show back button above the todo list
+        let backBtn = document.getElementById('back-home-btn');
+        if (!backBtn) {
+            backBtn = document.createElement('button');
+            backBtn.id = 'back-home-btn';
+            backBtn.className = 'back-home-btn';
+            backBtn.textContent = '← Back to Lists';
+            backBtn.onclick = () => Controller.handleBackToHomepage();
+            this.body.querySelector('.wrapper').insertBefore(backBtn, this.todoForm);
+        } else {
+            backBtn.style.display = '';
+        }
         this.todoListUL.innerHTML = '';
-        AppState.todos.forEach((todo, i) => {
+        const list = AppState.lists.find(l => l.id === AppState.selectedListId);
+        if (!list) return;
+        list.todos.forEach((todo, i) => {
             const todoId = 'todo-' + i;
             const todoLI = document.createElement('li');
             todoLI.className = 'todo';
@@ -94,7 +199,8 @@ const View = {
             this.todoListUL.appendChild(todoLI);
         });
     },
-    // Render the theme (light/dark) based on app state
+    // ...existing code...
+    //  Render the theme (light/dark) based on app state
     renderTheme() {
         if (AppState.theme === "light") {
             this.body.classList.add("light-theme");
@@ -114,10 +220,19 @@ const Controller = {
     init() {
         AppState.loadState();
         View.renderTheme();
-        View.renderTodos();
+        // If no list selected, show homepage
+        if (!AppState.selectedListId) {
+            View.renderHomepage();
+        } else {
+            View.renderTodos();
+        }
         // Update view when state changes
         AppState.subscribe(() => {
-            View.renderTodos();
+            if (!AppState.selectedListId) {
+                View.renderHomepage();
+            } else {
+                View.renderTodos();
+            }
             View.renderTheme();
         });
         // Add todo on form submit
@@ -130,6 +245,16 @@ const Controller = {
             const newTheme = View.body.classList.contains("light-theme") ? "dark" : "light";
             AppState.setTheme(newTheme);
         });
+    },
+    // Handle creating a new list (now receives name from input)
+    handleCreateList(name) {
+        if (name && name.trim().length > 0) {
+            AppState.addList(name.trim());
+        }
+    },
+    // Handle selecting a list
+    handleSelectList(id) {
+        AppState.selectList(id);
     },
     // Handle adding a new todo from input
     handleAdd() {
@@ -146,6 +271,15 @@ const Controller = {
     // Handle toggling completed state for a todo
     handleToggle(index, completed) {
         AppState.toggleTodo(index, completed);
+    },
+    // Handle going back to homepage (list selector)
+    handleBackToHomepage() {
+        AppState.selectedListId = null;
+        AppState.saveState();
+        AppState.notify();
+        // Hide back button after going back
+        const backBtn = document.getElementById('back-home-btn');
+        if (backBtn) backBtn.style.display = 'none';
     }
 };
 
