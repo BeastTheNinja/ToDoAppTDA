@@ -7,48 +7,48 @@ const AppState = {
     todos: [], // Array of todo objects {text, completed}
     theme: 'dark', // Current theme ('dark' or 'light')
     listeners: [], // Functions to call when state changes
+    // Subscribe a function to state changes
     subscribe(fn) {
-        // Add a function to be called on state change
         this.listeners.push(fn);
     },
+    // Notify all listeners about state change
     notify() {
-        // Call all subscribed functions
         this.listeners.forEach(fn => fn());
     },
+    // Add a new todo item to the list
     addTodo(text) {
-        // Add a new todo item
         this.todos.push({ text, completed: false });
         this.saveState();
         this.notify();
     },
+    // Remove a todo item by its index
     deleteTodo(index) {
-        // Remove a todo by index
         this.todos.splice(index, 1);
         this.saveState();
         this.notify();
     },
+    // Toggle the completed state of a todo
     toggleTodo(index, completed) {
-        // Mark a todo as completed or not
         this.todos[index].completed = completed;
         this.saveState();
         this.notify();
     },
+    // Save the current app state to localStorage
     saveState() {
-        // Save the whole app state to localStorage
         const state = {
             todos: this.todos,
             theme: this.theme
         };
         localStorage.setItem(APP_STATE_KEY, JSON.stringify(state));
     },
+    // Load app state from localStorage
     loadState() {
-        // Load app state from localStorage
         const state = JSON.parse(localStorage.getItem(APP_STATE_KEY) || '{}');
         this.todos = Array.isArray(state.todos) ? state.todos : [];
         this.theme = state.theme || 'dark';
     },
+    // Set the theme and update state
     setTheme(theme) {
-        // Change theme and save
         this.theme = theme;
         this.saveState();
         this.notify();
@@ -64,8 +64,8 @@ const View = {
     todoListUL: document.getElementById('todo-list'), // UL element for todo list
     themeToggle: document.getElementById("theme-toggle"), // Theme toggle switch
     body: document.body, // Reference to <body>
+    // Render all todos in the list
     renderTodos() {
-        // Render all todos in the list
         this.todoListUL.innerHTML = '';
         AppState.todos.forEach((todo, i) => {
             const todoId = 'todo-' + i;
@@ -94,8 +94,8 @@ const View = {
             this.todoListUL.appendChild(todoLI);
         });
     },
+    // Render the theme (light/dark) based on app state
     renderTheme() {
-        // Update theme based on app state
         if (AppState.theme === "light") {
             this.body.classList.add("light-theme");
             this.themeToggle.checked = true;
@@ -110,8 +110,8 @@ const View = {
 // Handles user interactions and connects Model and View
 // Possible feature: undo/redo, bulk actions, keyboard shortcuts
 const Controller = {
+    // Initialize the app, set up listeners and render UI
     init() {
-        // Initialize app: load state, render UI, set up listeners
         AppState.loadState();
         View.renderTheme();
         View.renderTodos();
@@ -131,20 +131,20 @@ const Controller = {
             AppState.setTheme(newTheme);
         });
     },
+    // Handle adding a new todo from input
     handleAdd() {
-        // Add a new todo from input
         const text = View.todoInput.value.trim();
         if (text.length > 0) {
             AppState.addTodo(text);
             View.todoInput.value = '';
         }
     },
+    // Handle deleting a todo by index
     handleDelete(index) {
-        // Delete a todo by index
         AppState.deleteTodo(index);
     },
+    // Handle toggling completed state for a todo
     handleToggle(index, completed) {
-        // Toggle completed state for a todo
         AppState.toggleTodo(index, completed);
     }
 };
