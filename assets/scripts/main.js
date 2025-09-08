@@ -1,5 +1,5 @@
 
-// -------------------- App State (Model) --------------------
+// #region App State (Model)
 // Central state management for lists, todos, and theme
 // Possible features:
 // - Deadlines for items (add 'deadline' property to todos)
@@ -93,7 +93,9 @@ const AppState = {
     }
 };
 
-// -------------------- View --------------------
+// #endregion
+
+// #region View
 // Handles all DOM updates and rendering
 // Possible features:
 // - Animations for adding/removing items/lists
@@ -234,7 +236,9 @@ const View = {
     }
 };
 
-// -------------------- Controller --------------------
+// #endregion
+
+// #region Controller
 // Handles user interactions and connects Model and View
 // Possible features:
 // - Undo/redo actions
@@ -322,7 +326,10 @@ const Controller = {
     }
 };
 
-// -------------------- Init App --------------------
+// #endregion
+
+// #region Init App
 // Start the application
 Controller.init();
+// #endregion
 
