@@ -1,9 +1,17 @@
 
 // -------------------- App State (Model) --------------------
 // Central state management for lists, todos, and theme
+// Possible features:
+// - Deadlines for items (add 'deadline' property to todos)
+// - Color coding/tags for lists/items (add 'color' or 'tags' property)
+// - Sorting/filtering (sort by deadline, status, etc.)
+// - List renaming, confirmation before delete
+// - Bulk actions, starred/important items
+// - Data export/import (JSON/CSV)
+// - Accessibility: ARIA labels, keyboard navigation
 const APP_STATE_KEY = 'appState';
 const AppState = {
-    lists: [], // Array of list objects {id, name, todos: [{text, completed}]}
+    lists: [], // Array of list objects {id, name, todos: [{text, completed, deadline, tags, color, important}]}
     selectedListId: null, // Currently selected list id
     theme: 'dark', // Current theme ('dark' or 'light')
     listeners: [], // Functions to call when state changes
@@ -16,8 +24,9 @@ const AppState = {
         this.listeners.forEach(fn => fn());
     },
     // Add a new list
+    // Possible feature: allow user to pick color/tags for list
     addList(name) {
-        const newList = { id: Date.now().toString(), name, todos: [] };
+        const newList = { id: Date.now().toString(), name, todos: [] /* color, tags */ };
         this.lists.push(newList);
         this.selectedListId = newList.id;
         this.saveState();
@@ -30,15 +39,17 @@ const AppState = {
         this.notify();
     },
     // Add a new todo to the selected list
+    // Possible feature: add deadline, tags, color, important/starred
     addTodo(text) {
         const list = this.lists.find(l => l.id === this.selectedListId);
         if (list) {
-            list.todos.push({ text, completed: false });
+            list.todos.push({ text, completed: false /*, deadline, tags, color, important */ });
             this.saveState();
             this.notify();
         }
     },
     // Remove a todo from the selected list by index
+    // Possible feature: bulk delete, confirmation dialog
     deleteTodo(index) {
         const list = this.lists.find(l => l.id === this.selectedListId);
         if (list) {
@@ -48,6 +59,7 @@ const AppState = {
         }
     },
     // Toggle the completed state of a todo in the selected list
+    // Possible feature: mark as important/starred
     toggleTodo(index, completed) {
         const list = this.lists.find(l => l.id === this.selectedListId);
         if (list) {
@@ -57,6 +69,7 @@ const AppState = {
         }
     },
     // Save the current app state to localStorage
+    // Possible feature: export/import data
     saveState() {
         const state = {
             lists: this.lists,
@@ -82,7 +95,12 @@ const AppState = {
 
 // -------------------- View --------------------
 // Handles all DOM updates and rendering
-// Possible feature: animations, filters, search, or custom themes
+// Possible features:
+// - Animations for adding/removing items/lists
+// - Filters/search bar for tasks
+// - Color/tag indicators in UI
+// - Sorting options (dropdown)
+// - Accessibility: ARIA labels, keyboard navigation
 const View = {
     todoForm: document.querySelector('form'), // The form for adding todos
     todoInput: document.getElementById('todo-input'), // Input field for new todo
@@ -91,6 +109,8 @@ const View = {
     body: document.body, // Reference to <body>
     homepage: null, // Will be created dynamically
     // Render homepage with all lists
+    // Render homepage with all lists and new list creation
+    // Possible feature: show summary (number of tasks, completed, etc.)
     renderHomepage() {
         // Hide todo form and list
         if (this.todoForm) this.todoForm.style.display = 'none';
@@ -151,6 +171,8 @@ const View = {
         }
     },
     // Render todos for the selected list
+    // Render todos for the selected list
+    // Possible feature: show deadline, tags, color, important/starred, sorting/filtering
     renderTodos() {
         // Hide homepage if present
         if (this.homepage) this.homepage.style.display = 'none';
@@ -214,7 +236,12 @@ const View = {
 
 // -------------------- Controller --------------------
 // Handles user interactions and connects Model and View
-// Possible feature: undo/redo, bulk actions, keyboard shortcuts
+// Possible features:
+// - Undo/redo actions
+// - Bulk actions (complete/delete multiple)
+// - Keyboard shortcuts for navigation
+// - Confirm before deleting lists/items
+// - List renaming
 const Controller = {
     // Initialize the app, set up listeners and render UI
     init() {
@@ -247,16 +274,22 @@ const Controller = {
         });
     },
     // Handle creating a new list (now receives name from input)
+    // Handle creating a new list (receives name from input)
+    // Possible feature: allow color/tag selection
     handleCreateList(name) {
         if (name && name.trim().length > 0) {
             AppState.addList(name.trim());
         }
     },
     // Handle selecting a list
+    // Handle selecting a list
+    // Possible feature: show summary, allow renaming
     handleSelectList(id) {
         AppState.selectList(id);
     },
     // Handle adding a new todo from input
+    // Handle adding a new todo from input
+    // Possible feature: add deadline, tags, color, important/starred
     handleAdd() {
         const text = View.todoInput.value.trim();
         if (text.length > 0) {
@@ -265,14 +298,20 @@ const Controller = {
         }
     },
     // Handle deleting a todo by index
+    // Handle deleting a todo by index
+    // Possible feature: bulk delete, confirmation dialog
     handleDelete(index) {
         AppState.deleteTodo(index);
     },
     // Handle toggling completed state for a todo
+    // Handle toggling completed state for a todo
+    // Possible feature: mark as important/starred
     handleToggle(index, completed) {
         AppState.toggleTodo(index, completed);
     },
     // Handle going back to homepage (list selector)
+    // Handle going back to homepage (list selector)
+    // Possible feature: keyboard shortcut, animation
     handleBackToHomepage() {
         AppState.selectedListId = null;
         AppState.saveState();
