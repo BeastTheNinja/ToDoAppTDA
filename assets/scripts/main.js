@@ -208,8 +208,6 @@ const View = {
             AppState.lists.forEach(list => {
                 const li = document.createElement('li');
                 li.className = 'list-item flex-center';
-                li.style.display = 'flex';
-                li.style.alignItems = 'center';
                 if (list.editing) {
                     const editInput = document.createElement('input');
                     editInput.type = 'text';
