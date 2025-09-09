@@ -172,6 +172,10 @@ body {
   color: var(--background);
   box-shadow: 0 4px 16px rgba(0,0,0,0.13);
 }
+.flex-center {
+    display: flex;
+    align-items: center;
+}
 
 /* Back to homepage button styles */
 .back-home-btn {

@@ -1,4 +1,19 @@
+// #region Callbacks
+// Central callback registry for key events
+const Callbacks = {
+    onListSelected: null,
+    onTodoEdited: null,
+    onThemeChanged: null,
+    onListEdited: null, // NEW
+    // Add more as needed
+};
 
+// Setter functions for callbacks
+function setOnListSelected(fn) { Callbacks.onListSelected = fn; }
+function setOnTodoEdited(fn) { Callbacks.onTodoEdited = fn; }
+function setOnThemeChanged(fn) { Callbacks.onThemeChanged = fn; }
+function setOnListEdited(fn) { Callbacks.onListEdited = fn; } // NEW
+// #endregion
 // #region App State (Model)
 // Central state management for lists, todos, and theme
 // Possible features:
@@ -66,6 +81,10 @@ const AppState = {
             list.todos[index].editing = false; // Exit edit mode
             this.saveState();
             this.notify();
+            // Callback for todo edit
+            if (typeof Callbacks.onTodoEdited === 'function') {
+                Callbacks.onTodoEdited(index, newText);
+            }
         }
     },
     // Edit a list's name by id
@@ -76,6 +95,10 @@ const AppState = {
             list.editing = false; // Exit edit mode
             this.saveState();
             this.notify();
+            // Callback for list name edit
+            if (typeof Callbacks.onListEdited === 'function') {
+                Callbacks.onListEdited(id, newName);
+            }
         }
     },
     // Toggle the completed state of a todo in the selected list
@@ -184,9 +207,7 @@ const View = {
             ul.className = 'list-selector';
             AppState.lists.forEach(list => {
                 const li = document.createElement('li');
-                li.className = 'list-item';
-                li.style.display = 'flex';
-                li.style.alignItems = 'center';
+                li.className = 'list-item flex-center';
                 if (list.editing) {
                     const editInput = document.createElement('input');
                     editInput.type = 'text';
@@ -250,49 +271,61 @@ const View = {
             const todoId = 'todo-' + i;
             const todoLI = document.createElement('li');
             todoLI.className = 'todo';
-            // Checkbox
-            const checkbox = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.id = todoId;
-            checkbox.checked = todo.completed;
-            // Custom checkbox label
-            const customCheckbox = document.createElement('label');
-            customCheckbox.htmlFor = todoId;
-            customCheckbox.className = 'custom-checkbox';
-            customCheckbox.innerHTML = `<img src="assets/image/check_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg" alt="">`;
-            // Todo text label
-            const todoText = document.createElement('label');
-            todoText.htmlFor = todoId;
-            todoText.className = 'todo-text';
-            todoText.textContent = todo.text;
-            // Edit icon button (far right)
-            const editBtn = document.createElement('button');
-            editBtn.className = 'edit-button';
-            editBtn.innerHTML = `<img src="assets/image/edit_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg" alt="Edit">`;
-            editBtn.onclick = (e) => {
-                e.stopPropagation();
-                Controller.handleEditTodo(i);
-            };
-            // Delete button
-            const deleteBtn = document.createElement('button');
-            deleteBtn.className = 'delete-button';
-            deleteBtn.innerHTML = `<img src="assets/image/delete_24dp_000000.svg" alt="">`;
-            deleteBtn.addEventListener('click', () => {
-                Controller.handleDelete(i);
-            });
-            // Checkbox event
-            checkbox.addEventListener('change', () => {
-                Controller.handleToggle(i, checkbox.checked);
-            });
-            todoLI.appendChild(checkbox);
-            todoLI.appendChild(customCheckbox);
-            todoLI.appendChild(todoText);
-            todoLI.appendChild(editBtn);
-            todoLI.appendChild(deleteBtn);
-            this.todoListUL.appendChild(todoLI);
+
+            if (todo.editing) {
+                // Edit mode: show input and save button
+                const editInput = document.createElement('input');
+                editInput.type = 'text';
+                editInput.value = todo.text;
+                editInput.className = 'edit-input';
+                editInput.autoFocus = true;
+                const saveBtn = document.createElement('button');
+                saveBtn.textContent = 'Save';
+                saveBtn.className = 'save-edit-button';
+                saveBtn.onclick = () => {
+                    Controller.handleSaveTodoEdit(i, editInput.value.trim());
+                };
+                todoLI.appendChild(editInput);
+                todoLI.appendChild(saveBtn);
+            } else {
+                // Normal mode
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = todoId;
+                checkbox.checked = todo.completed;
+                const customCheckbox = document.createElement('label');
+                customCheckbox.htmlFor = todoId;
+                customCheckbox.className = 'custom-checkbox';
+                customCheckbox.innerHTML = `<img src="assets/image/check_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg" alt="">`;
+                const todoText = document.createElement('label');
+                todoText.htmlFor = todoId;
+                todoText.className = 'todo-text';
+                todoText.textContent = todo.text;
+                const editBtn = document.createElement('button');
+                editBtn.className = 'edit-button';
+                editBtn.innerHTML = `<img src="assets/image/edit_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg" alt="Edit">`;
+                editBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    Controller.handleEditTodo(i);
+                };
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'delete-button';
+                deleteBtn.innerHTML = `<img src="assets/image/delete_24dp_000000.svg" alt="">`;
+                deleteBtn.addEventListener('click', () => {
+                    Controller.handleDelete(i);
+                });
+                checkbox.addEventListener('change', () => {
+                    Controller.handleToggle(i, checkbox.checked);
+                });
+                todoLI.appendChild(checkbox);
+                todoLI.appendChild(customCheckbox);
+                todoLI.appendChild(todoText);
+                todoLI.appendChild(editBtn);
+                todoLI.appendChild(deleteBtn);
+            }
+            View.todoListUL.appendChild(todoLI);
         });
     },
-    // ...existing code...
     //  Render the theme (light/dark) based on app state
     renderTheme() {
         if (AppState.theme === "light") {
@@ -309,70 +342,32 @@ const View = {
 
 // #region Controller
 // Handles user interactions and connects Model and View
-// Possible features:
-// - Undo/redo actions
-// - Bulk actions (complete/delete multiple)
-// - Keyboard shortcuts for navigation
-// - Confirm before deleting lists/items
-// - List renaming
 const Controller = {
-    // Enter edit mode for a list
-    handleEditList(id) {
-        AppState.lists.forEach(list => {
-            list.editing = false;
-        });
-        const list = AppState.lists.find(l => l.id === id);
-        if (list) {
-            list.editing = true;
-            AppState.notify();
+    handleSelectList(id) {
+        AppState.selectList(id);
+        if (typeof Callbacks.onListSelected === 'function') {
+            Callbacks.onListSelected(id);
         }
     },
-    // Save edited list name
-    handleSaveListEdit(id, newName) {
-        if (newName.length > 0) {
-            AppState.editListName(id, newName);
-        } else {
-            // Cancel edit if empty
-            const list = AppState.lists.find(l => l.id === id);
-            if (list) list.editing = false;
-            AppState.notify();
-        }
-    },
-    // Enter edit mode for a todo
-    handleEditTodo(index) {
-        const list = AppState.lists.find(l => l.id === AppState.selectedListId);
-        if (list) {
-            list.todos.forEach(todo => {
-                todo.editing = false;
-            });
-            if (list.todos[index]) {
-                list.todos[index].editing = true;
-                AppState.notify();
-            }
-        }
-    },
-    // Save edited todo name
+
     handleSaveTodoEdit(index, newText) {
         if (newText.length > 0) {
             AppState.editTodo(index, newText);
         } else {
-            // Cancel edit if empty
             const list = AppState.lists.find(l => l.id === AppState.selectedListId);
             if (list && list.todos[index]) list.todos[index].editing = false;
             AppState.notify();
         }
     },
-    // Initialize the app, set up listeners and render UI
+
     init() {
         AppState.loadState();
         View.renderTheme();
-        // If no list selected, show homepage
         if (!AppState.selectedListId) {
             View.renderHomepage();
         } else {
             View.renderTodos();
         }
-        // Update view when state changes
         AppState.subscribe(() => {
             if (!AppState.selectedListId) {
                 View.renderHomepage();
@@ -381,34 +376,25 @@ const Controller = {
             }
             View.renderTheme();
         });
-        // Add todo on form submit
         View.todoForm.addEventListener('submit', (e) => {
             e.preventDefault();
             this.handleAdd();
         });
-        // Toggle theme on switch
         View.themeToggle.addEventListener("change", () => {
             const newTheme = View.body.classList.contains("light-theme") ? "dark" : "light";
             AppState.setTheme(newTheme);
+            if (typeof Callbacks.onThemeChanged === 'function') {
+                Callbacks.onThemeChanged(newTheme);
+            }
         });
     },
-    // Handle creating a new list (now receives name from input)
-    // Handle creating a new list (receives name from input)
-    // Possible feature: allow color/tag selection
+
     handleCreateList(name) {
         if (name && name.trim().length > 0) {
             AppState.addList(name.trim());
         }
     },
-    // Handle selecting a list
-    // Handle selecting a list
-    // Possible feature: show summary, allow renaming
-    handleSelectList(id) {
-        AppState.selectList(id);
-    },
-    // Handle adding a new todo from input
-    // Handle adding a new todo from input
-    // Possible feature: add deadline, tags, color, important/starred
+
     handleAdd() {
         const text = View.todoInput.value.trim();
         if (text.length > 0) {
@@ -416,31 +402,49 @@ const Controller = {
             View.todoInput.value = '';
         }
     },
-    // Handle deleting a todo by index
-    // Handle deleting a todo by index
-    // Possible feature: bulk delete, confirmation dialog
+
     handleDelete(index) {
         AppState.deleteTodo(index);
     },
-    // Handle toggling completed state for a todo
-    // Handle toggling completed state for a todo
-    // Possible feature: mark as important/starred
+
     handleToggle(index, completed) {
         AppState.toggleTodo(index, completed);
     },
-    // Handle going back to homepage (list selector)
-    // Handle going back to homepage (list selector)
-    // Possible feature: keyboard shortcut, animation
+
     handleBackToHomepage() {
         AppState.selectedListId = null;
         AppState.saveState();
         AppState.notify();
-        // Hide back button after going back
         const backBtn = document.getElementById('back-home-btn');
         if (backBtn) backBtn.style.display = 'none';
-    }
-};
+    },
 
+    handleEditList(id) {
+        const list = AppState.lists.find(l => l.id === id);
+        if (list) {
+            list.editing = true;
+            AppState.notify();
+        }
+    },
+
+    handleEditTodo(index) {
+        const list = AppState.lists.find(l => l.id === AppState.selectedListId);
+        if (list && list.todos[index]) {
+            list.todos[index].editing = true;
+            AppState.notify();
+        }
+    },
+
+    handleSaveListEdit(id, newName) {
+        if (newName.length > 0) {
+            AppState.editListName(id, newName);
+        } else {
+            const list = AppState.lists.find(l => l.id === id);
+            if (list) list.editing = false;
+            AppState.notify();
+        }
+    },
+};
 // #endregion
 
 // #region Init App
@@ -488,4 +492,19 @@ setTimeout(() => {
     loadHomepage(AppState.lists);
 }, Math.floor(Math.random() * 3000) + 2000); // 2-5 seconds
 // #endregion
+
+
+// Example usage of callbacks and checking they work
+// setOnListSelected((id) => {
+//     console.log('List selected:', id);
+// });
+// setOnTodoEdited((index, newText) => {
+//     console.log('Todo edited:', index, newText);
+// });
+// setOnThemeChanged((theme) => {
+//     console.log('Theme changed:', theme);
+// });
+// setOnListEdited((id, newName) => {
+//     console.log('List name edited:', id, newName);
+// });
 
