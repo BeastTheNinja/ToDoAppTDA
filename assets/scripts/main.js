@@ -359,13 +359,7 @@ handleSelectList(id) {
     }
 },
 
-handleAdd() {
-    const text = View.todoInput.value.trim();
-    if (text.length > 0) {
-        AppState.addTodo(text);
-        View.todoInput.value = '';
-    }
-},
+// Duplicate handleAdd removed (see above for single definition)
 
 handleSaveTodoEdit(index, newText) {
     if (newText.length > 0) {
