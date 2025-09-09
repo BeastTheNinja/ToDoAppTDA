@@ -329,7 +329,47 @@ const Controller = {
 // #endregion
 
 // #region Init App
-// Start the application
-Controller.init();
-// #endregion
+// Loading screen logic
+function showLoadingScreen() {
+    // Create loading screen if not exists
+    let loading = document.getElementById('loading-screen');
+    if (!loading) {
+        loading = document.createElement('div');
+        loading.id = 'loading-screen';
+        loading.className = 'loading-screen';
+        loading.innerHTML = `
+            <div class="loading-content">
+                <div class="logo-placeholder">
+                    <!-- SVG for TDA logo, fills circle and centers text -->
+                    <svg width="7rem" height="7rem" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="50" cy="50" r="50" fill="var(--accent-color)" />
+                        <text x="50" y="58" text-anchor="middle" fill="var(--background)" font-size="2.7rem" font-family="Segoe UI, Arial" dy=".3em" dominant-baseline="middle">TDA</text>
+                    </svg>
+                </div>
+                <h1 class="loading-title">ToDoApp</h1>
+                <div class="loading-spinner"></div>
+            </div>
+        `;
+        document.body.appendChild(loading);
+    }
+    loading.style.display = '';
+}
 
+function hideLoadingScreen() {
+    const loading = document.getElementById('loading-screen');
+    if (loading) loading.style.display = 'none';
+}
+
+function loadHomepage(data) {
+    hideLoadingScreen();
+    View.renderHomepage();
+}
+
+// Start the application with loading screen
+showLoadingScreen();
+setTimeout(() => {
+    Controller.init();
+    // Pass lists data to loadHomepage
+    loadHomepage(AppState.lists);
+}, Math.floor(Math.random() * 3000) + 2000); // 2-5 seconds
+// #endregion
