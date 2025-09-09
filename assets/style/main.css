@@ -45,6 +45,55 @@ body {
  }
  /* #endregion */
  /* #region ToDo App styles */
+/* #region loading screen */
+/* Loading screen styles */
+#loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: var(--background);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.4s;
+}
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2.5rem;
+}
+.logo-placeholder {
+  width: 7rem;
+  height: 7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.7rem;
+}
+.loading-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--accent-color);
+  letter-spacing: 0.13rem;
+  margin: 0;
+}
+.loading-spinner {
+  width: 3rem;
+  height: 3rem;
+  border: 0.3rem solid var(--primary-color);
+  border-top: 0.3rem solid var(--accent-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-top: 1rem;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 /* Homepage new list creation styles */
 .create-list-container {
   display: flex;
@@ -382,7 +431,7 @@ input:checked + .slider:before {
   }
   h1{
     margin-top: 50px;
-    font-size: 15vw;
+    font-size: 10vw;
   }
    .wrapper{
       width: 90%;
