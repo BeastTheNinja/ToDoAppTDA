@@ -362,13 +362,7 @@ function hideLoadingScreen() {
 
 function loadHomepage(data) {
     hideLoadingScreen();
-    if (data && data.length > 0) {
-        // Show homepage with lists
-        View.renderHomepage();
-    } else {
-        // Show homepage with empty state
-        View.renderHomepage();
-    }
+    View.renderHomepage();
 }
 
 // Start the application with loading screen
