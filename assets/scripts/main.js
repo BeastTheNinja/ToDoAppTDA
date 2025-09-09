@@ -344,79 +344,59 @@ const View = {
 
 // #region Controller
 // Handles user interactions and connects Model and View
-// Possible features:
-// - Undo/redo actions
-// - Bulk actions (complete/delete multiple)
-// - Keyboard shortcuts for navigation
-// - Confirm before deleting lists/items
-// - List renaming
 const Controller = {
-    // Enter edit mode for a list
-handleSelectList(id) {
-    AppState.selectList(id);
-    if (typeof Callbacks.onListSelected === 'function') {
-        Callbacks.onListSelected(id);
-    }
-},
+    handleSelectList(id) {
+        AppState.selectList(id);
+        if (typeof Callbacks.onListSelected === 'function') {
+            Callbacks.onListSelected(id);
+        }
+    },
 
-// Duplicate handleAdd removed (see above for single definition)
+    handleSaveTodoEdit(index, newText) {
+        if (newText.length > 0) {
+            AppState.editTodo(index, newText);
+        } else {
+            const list = AppState.lists.find(l => l.id === AppState.selectedListId);
+            if (list && list.todos[index]) list.todos[index].editing = false;
+            AppState.notify();
+        }
+    },
 
-handleSaveTodoEdit(index, newText) {
-    if (newText.length > 0) {
-        AppState.editTodo(index, newText);
-    } else {
-        const list = AppState.lists.find(l => l.id === AppState.selectedListId);
-        if (list && list.todos[index]) list.todos[index].editing = false;
-        AppState.notify();
-    }
-},
-
-init() {
-    AppState.loadState();
-    View.renderTheme();
-    if (!AppState.selectedListId) {
-        View.renderHomepage();
-    } else {
-        View.renderTodos();
-    }
-    AppState.subscribe(() => {
+    init() {
+        AppState.loadState();
+        View.renderTheme();
         if (!AppState.selectedListId) {
             View.renderHomepage();
         } else {
             View.renderTodos();
         }
-        View.renderTheme();
-    });
-    View.todoForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        this.handleAdd();
-    });
-    View.themeToggle.addEventListener("change", () => {
-        const newTheme = View.body.classList.contains("light-theme") ? "dark" : "light";
-        AppState.setTheme(newTheme);
-        // Callback for theme change
-        if (typeof Callbacks.onThemeChanged === 'function') {
-            Callbacks.onThemeChanged(newTheme);
-        }
-    });
-},
-    // Handle creating a new list (now receives name from input)
-    // Handle creating a new list (receives name from input)
-    // Possible feature: allow color/tag selection
+        AppState.subscribe(() => {
+            if (!AppState.selectedListId) {
+                View.renderHomepage();
+            } else {
+                View.renderTodos();
+            }
+            View.renderTheme();
+        });
+        View.todoForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            this.handleAdd();
+        });
+        View.themeToggle.addEventListener("change", () => {
+            const newTheme = View.body.classList.contains("light-theme") ? "dark" : "light";
+            AppState.setTheme(newTheme);
+            if (typeof Callbacks.onThemeChanged === 'function') {
+                Callbacks.onThemeChanged(newTheme);
+            }
+        });
+    },
+
     handleCreateList(name) {
         if (name && name.trim().length > 0) {
             AppState.addList(name.trim());
         }
     },
-    // Handle selecting a list
-    // Handle selecting a list
-    // Possible feature: show summary, allow renaming
-    handleSelectList(id) {
-        AppState.selectList(id);
-    },
-    // Handle adding a new todo from input
-    // Handle adding a new todo from input
-    // Possible feature: add deadline, tags, color, important/starred
+
     handleAdd() {
         const text = View.todoInput.value.trim();
         if (text.length > 0) {
@@ -424,31 +404,24 @@ init() {
             View.todoInput.value = '';
         }
     },
-    // Handle deleting a todo by index
-    // Handle deleting a todo by index
-    // Possible feature: bulk delete, confirmation dialog
+
     handleDelete(index) {
         AppState.deleteTodo(index);
     },
-    // Handle toggling completed state for a todo
-    // Handle toggling completed state for a todo
-    // Possible feature: mark as important/starred
+
     handleToggle(index, completed) {
         AppState.toggleTodo(index, completed);
     },
-    // Handle going back to homepage (list selector)
-    // Handle going back to homepage (list selector)
-    // Possible feature: keyboard shortcut, animation
+
     handleBackToHomepage() {
         AppState.selectedListId = null;
         AppState.saveState();
         AppState.notify();
-        // Hide back button after going back
         const backBtn = document.getElementById('back-home-btn');
         if (backBtn) backBtn.style.display = 'none';
     },
+
     handleEditList(id) {
-        // Set editing mode for the list
         const list = AppState.lists.find(l => l.id === id);
         if (list) {
             list.editing = true;
@@ -457,25 +430,23 @@ init() {
     },
 
     handleEditTodo(index) {
-        // Set editing mode for the todo
         const list = AppState.lists.find(l => l.id === AppState.selectedListId);
         if (list && list.todos[index]) {
             list.todos[index].editing = true;
             AppState.notify();
         }
     },
+
     handleSaveListEdit(id, newName) {
         if (newName.length > 0) {
             AppState.editListName(id, newName);
         } else {
-            // Cancel edit if empty
             const list = AppState.lists.find(l => l.id === id);
             if (list) list.editing = false;
             AppState.notify();
         }
     },
 };
-
 // #endregion
 
 // #region Init App
