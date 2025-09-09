@@ -532,16 +532,16 @@ setTimeout(() => {
 
 
 // Example usage of callbacks and checking they work
-setOnListSelected((id) => {
-    console.log('List selected:', id);
-});
-setOnTodoEdited((index, newText) => {
-    console.log('Todo edited:', index, newText);
-});
-setOnThemeChanged((theme) => {
-    console.log('Theme changed:', theme);
-});
-setOnListEdited((id, newName) => {
-    console.log('List name edited:', id, newName);
-});
+// setOnListSelected((id) => {
+//     console.log('List selected:', id);
+// });
+// setOnTodoEdited((index, newText) => {
+//     console.log('Todo edited:', index, newText);
+// });
+// setOnThemeChanged((theme) => {
+//     console.log('Theme changed:', theme);
+// });
+// setOnListEdited((id, newName) => {
+//     console.log('List name edited:', id, newName);
+// });
 
