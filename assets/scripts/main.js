@@ -368,7 +368,6 @@ function loadHomepage(data) {
 // Start the application with loading screen
 showLoadingScreen();
 setTimeout(() => {
-    AppState.loadState();
     Controller.init();
     // Pass lists data to loadHomepage
     loadHomepage(AppState.lists);
