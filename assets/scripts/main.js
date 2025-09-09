@@ -14,6 +14,7 @@ function setOnTodoEdited(fn) { Callbacks.onTodoEdited = fn; }
 function setOnThemeChanged(fn) { Callbacks.onThemeChanged = fn; }
 function setOnListEdited(fn) { Callbacks.onListEdited = fn; } // NEW
 // #endregion
+
 // #region App State (Model)
 // Central state management for lists, todos, and theme
 // Possible features:
