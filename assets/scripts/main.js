@@ -141,7 +141,17 @@ function dispatchAction(type, payload) {
             break;
         }
         case 'DELETE_LIST': {
-            // Optional: implement list deletion logic and callback
+            const idx = AppState.lists.findIndex(l => l.id === payload.id);
+            if (idx !== -1) {
+                AppState.lists.splice(idx, 1);
+                if (AppState.selectedListId === payload.id) {
+                    AppState.selectedListId = null;
+                    AppState.uiState = 'homepage';
+                }
+                AppState.saveState();
+                AppState.notify();
+                if (typeof Callbacks.onListDeleted === 'function') Callbacks.onListDeleted(payload.id);
+            }
             break;
         }
         case 'ADD_TODO': {
@@ -290,6 +300,15 @@ const View = {
                             dispatchAction('SELECT_LIST', { id: list.id });
                         }
                     };
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'delete-list-button';
+                    deleteBtn.setAttribute('aria-label', 'Delete list');
+                    deleteBtn.innerHTML = `<img src="assets/image/delete_24dp_000000.svg" alt="Delete">`;
+                    deleteBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        View.showDeleteListModal(list.id, list.name);
+                    };
+                    li.appendChild(deleteBtn);
                 }
                 ul.appendChild(li);
             });
@@ -298,6 +317,7 @@ const View = {
     },
 
     renderTodos() {
+        // Uncomment for test: console.log('renderTodos called');
         if (this.homepage) this.homepage.style.display = 'none';
         if (this.todoForm) this.todoForm.style.display = '';
         if (this.todoListUL) this.todoListUL.style.display = '';
@@ -367,10 +387,11 @@ const View = {
                 const deleteBtn = document.createElement('button');
                 deleteBtn.className = 'delete-button';
                 deleteBtn.innerHTML = `<img src="assets/image/delete_24dp_000000.svg" alt="">`;
-                deleteBtn.setAttribute('aria-label', 'Delete todo'); // ARIA label
-                deleteBtn.addEventListener('click', () => {
-                    dispatchAction('DELETE_TODO', { index: i });
-                });
+                deleteBtn.setAttribute('aria-label', 'Delete todo');
+                deleteBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    View.showDeleteTodoModal(i, todo.text);
+                };
                 checkbox.addEventListener('change', () => {
                     dispatchAction('TOGGLE_TODO', { index: i, completed: checkbox.checked });
                 });
@@ -420,11 +441,68 @@ const View = {
     hideLoadingScreen() {
         const loading = document.getElementById('loading-screen');
         if (loading) loading.style.display = 'none';
+    },
+
+    showDeleteListModal(listId, listName) {
+        let modal = document.getElementById('delete-list-modal');
+        if (modal) modal.remove();
+
+        modal = document.createElement('div');
+        modal.id = 'delete-list-modal';
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+            <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+                <h2 id="modal-title">Delete List</h2>
+                <p>Are you sure you want to delete the list "<strong>${listName}</strong>"?</p>
+                <button id="confirm-delete-list" aria-label="Confirm delete">Delete</button>
+                <button id="cancel-delete-list" aria-label="Cancel delete">Cancel</button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        modal.querySelector('#confirm-delete-list').focus();
+
+        modal.querySelector('#confirm-delete-list').onclick = () => {
+            dispatchAction('DELETE_LIST', { id: listId });
+            modal.remove();
+        };
+        modal.querySelector('#cancel-delete-list').onclick = () => {
+            modal.remove();
+        };
+    },
+
+    showDeleteTodoModal(todoIndex, todoText) {
+        let modal = document.getElementById('delete-todo-modal');
+        if (modal) modal.remove();
+
+        modal = document.createElement('div');
+        modal.id = 'delete-todo-modal';
+        modal.className = 'modal-overlay';
+        modal.innerHTML = `
+            <div class="modal-content" role="dialog" aria-modal="true" aria-labelledby="modal-todo-title">
+                <h2 id="modal-todo-title">Delete Todo</h2>
+                <p>Are you sure you want to delete the todo "<strong>${todoText}</strong>"?</p>
+                <button id="confirm-delete-todo" aria-label="Confirm delete">Delete</button>
+                <button id="cancel-delete-todo" aria-label="Cancel delete">Cancel</button>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        modal.querySelector('#confirm-delete-todo').focus();
+
+        modal.querySelector('#confirm-delete-todo').onclick = () => {
+            dispatchAction('DELETE_TODO', { index: todoIndex });
+            modal.remove();
+        };
+        modal.querySelector('#cancel-delete-todo').onclick = () => {
+            modal.remove();
+        };
     }
 };
 // #endregion
 
 // #region Controller
+
 // Handles app startup and event listener registration.
 // Ensures initialization only happens once.
 const Controller = {
@@ -482,17 +560,19 @@ setTimeout(() => {
 }, Math.floor(Math.random() * 3000) + 2000);
 // #endregion
 
-// Example usage of callbacks for debugging and extension
-setOnListSelected((id) => {
-    console.log('List selected:', id);
-});
-setOnTodoEdited((index, newText) => {
-    console.log('Todo edited:', index, newText);
-});
-setOnThemeChanged((theme) => {
-    console.log('Theme changed:', theme);
-});
-setOnListEdited((id, newName) => {
-    console.log('List name edited:', id, newName);
-});
+// #region Example usage of callbacks for debugging and extension
+// Uncomment these lines to test callback functionality:
 
+// setOnListSelected((id) => {
+//     console.log('List selected:', id);
+// });
+// setOnTodoEdited((index, newText) => {
+//     console.log('Todo edited:', index, newText);
+// });
+// setOnThemeChanged((theme) => {
+//     console.log('Theme changed:', theme);
+// });
+// setOnListEdited((id, newName) => {
+//     console.log('List name edited:', id, newName);
+// });
+// #endregion
