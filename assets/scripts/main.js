@@ -309,6 +309,15 @@ const View = {
                         View.showDeleteListModal(list.id, list.name);
                     };
                     li.appendChild(deleteBtn);
+
+                    // Summary info for the list
+                    const summary = document.createElement('span');
+                    summary.className = 'list-summary';
+                    const total = list.todos.length;
+                    const completed = list.todos.filter(t => t.completed).length;
+                    summary.textContent = `(${completed}/${total} completed)`;
+                    summary.style.marginLeft = '1rem';
+                    li.appendChild(summary);
                 }
                 ul.appendChild(li);
             });
