@@ -225,9 +225,11 @@ const View = {
         newListInput.type = 'text';
         newListInput.placeholder = 'Enter new list name';
         newListInput.className = 'new-list-input';
+        newListInput.setAttribute('aria-label', 'New list name'); // ARIA label
         const newListBtn = document.createElement('button');
         newListBtn.textContent = 'Create New List';
         newListBtn.className = 'new-list-btn';
+        newListBtn.setAttribute('aria-label', 'Create new list'); // ARIA label
         newListBtn.onclick = () => {
             const name = newListInput.value.trim();
             if (name.length > 0) {
@@ -244,9 +246,11 @@ const View = {
             this.homepage.appendChild(listTitle);
             const ul = document.createElement('ul');
             ul.className = 'list-selector';
+            ul.setAttribute('role', 'list'); // ARIA role
             AppState.lists.forEach(list => {
                 const li = document.createElement('li');
                 li.className = 'list-item flex-center';
+                li.setAttribute('role', 'listitem'); // ARIA role
                 if (list.editing) {
                     // Edit mode for list name
                     const editInput = document.createElement('input');
@@ -254,9 +258,11 @@ const View = {
                     editInput.value = list.name;
                     editInput.className = 'edit-input';
                     editInput.autoFocus = true;
+                    editInput.setAttribute('aria-label', 'Edit list name'); // ARIA label
                     const saveBtn = document.createElement('button');
                     saveBtn.textContent = 'Save';
                     saveBtn.className = 'save-edit-button';
+                    saveBtn.setAttribute('aria-label', 'Save edited list name'); // ARIA label
                     saveBtn.onclick = () => {
                         dispatchAction('EDIT_LIST', { id: list.id, newName: editInput.value.trim() });
                     };
@@ -270,9 +276,9 @@ const View = {
                     const editBtn = document.createElement('button');
                     editBtn.className = 'edit-button';
                     editBtn.innerHTML = `<img src="assets/image/edit_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg" alt="Edit">`;
+                    editBtn.setAttribute('aria-label', 'Edit list'); // ARIA label
                     editBtn.onclick = (e) => {
                         e.stopPropagation();
-                        // Only one list can be in edit mode at a time
                         AppState.lists.forEach(l => l.editing = false);
                         list.editing = true;
                         AppState.notify();
@@ -301,6 +307,7 @@ const View = {
             backBtn.id = 'back-home-btn';
             backBtn.className = 'back-home-btn';
             backBtn.textContent = '← Back to Lists';
+            backBtn.setAttribute('aria-label', 'Back to lists'); // ARIA label
             backBtn.onclick = () => dispatchAction('BACK_HOME');
             this.body.querySelector('.wrapper').insertBefore(backBtn, this.todoForm);
         } else {
@@ -313,6 +320,7 @@ const View = {
             const todoId = 'todo-' + i;
             const todoLI = document.createElement('li');
             todoLI.className = 'todo';
+            todoLI.setAttribute('role', 'listitem'); // ARIA role
             if (todo.editing) {
                 // Edit mode for todo
                 const editInput = document.createElement('input');
@@ -320,9 +328,11 @@ const View = {
                 editInput.value = todo.text;
                 editInput.className = 'edit-input';
                 editInput.autofocus = true;
+                editInput.setAttribute('aria-label', 'Edit todo text'); // ARIA label
                 const saveBtn = document.createElement('button');
                 saveBtn.textContent = 'Save';
                 saveBtn.className = 'save-edit-button';
+                saveBtn.setAttribute('aria-label', 'Save edited todo'); // ARIA label
                 saveBtn.onclick = () => {
                     dispatchAction('EDIT_TODO', { index: i, newText: editInput.value.trim() });
                 };
@@ -334,6 +344,7 @@ const View = {
                 checkbox.type = 'checkbox';
                 checkbox.id = todoId;
                 checkbox.checked = todo.completed;
+                checkbox.setAttribute('aria-label', 'Mark todo as completed'); // ARIA label
                 const customCheckbox = document.createElement('label');
                 customCheckbox.htmlFor = todoId;
                 customCheckbox.className = 'custom-checkbox';
@@ -342,12 +353,13 @@ const View = {
                 todoText.htmlFor = todoId;
                 todoText.className = 'todo-text';
                 todoText.textContent = todo.text;
+                todoText.setAttribute('aria-label', 'Todo text'); // ARIA label
                 const editBtn = document.createElement('button');
                 editBtn.className = 'edit-button';
                 editBtn.innerHTML = `<img src="assets/image/edit_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg" alt="Edit">`;
+                editBtn.setAttribute('aria-label', 'Edit todo'); // ARIA label
                 editBtn.onclick = (e) => {
                     e.stopPropagation();
-                    // Only one todo can be in edit mode at a time
                     list.todos.forEach(t => t.editing = false);
                     todo.editing = true;
                     AppState.notify();
@@ -355,6 +367,7 @@ const View = {
                 const deleteBtn = document.createElement('button');
                 deleteBtn.className = 'delete-button';
                 deleteBtn.innerHTML = `<img src="assets/image/delete_24dp_000000.svg" alt="">`;
+                deleteBtn.setAttribute('aria-label', 'Delete todo'); // ARIA label
                 deleteBtn.addEventListener('click', () => {
                     dispatchAction('DELETE_TODO', { index: i });
                 });
