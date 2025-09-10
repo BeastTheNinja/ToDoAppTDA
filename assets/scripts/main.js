@@ -1,17 +1,18 @@
 // #region Callbacks
-// Central callback registry for key events
+// Central registry for callback functions triggered by key app events.
+// These allow you to hook into app logic for analytics, UI feedback, etc.
 const Callbacks = {
-    onListSelected: null,
-    onTodoEdited: null,
-    onThemeChanged: null,
-    onListEdited: null,
-    onListAdded: null,
-    onTodoAdded: null,
-    onTodoDeleted: null,
-    onListDeleted: null,
+    onListSelected: null,   // Called when a list is selected
+    onTodoEdited: null,     // Called when a todo is edited
+    onThemeChanged: null,   // Called when theme changes
+    onListEdited: null,     // Called when a list name is edited
+    onListAdded: null,      // Called when a list is added
+    onTodoAdded: null,      // Called when a todo is added
+    onTodoDeleted: null,    // Called when a todo is deleted
+    onListDeleted: null,    // Called when a list is deleted
 };
 
-// Setter functions for callbacks
+// Functions to register (set) callbacks for each event
 function setOnListSelected(fn) { Callbacks.onListSelected = fn; }
 function setOnTodoEdited(fn) { Callbacks.onTodoEdited = fn; }
 function setOnThemeChanged(fn) { Callbacks.onThemeChanged = fn; }
@@ -23,18 +24,24 @@ function setOnListDeleted(fn) { Callbacks.onListDeleted = fn; }
 // #endregion
 
 // #region App State (Model)
+// This object holds all app data and methods to manipulate it.
+// It acts as the "Model" in MVC, storing lists, todos, theme, and notifying listeners.
 const APP_STATE_KEY = 'appState';
 const AppState = {
-    lists: [],
-    selectedListId: null,
-    theme: 'dark',
-    listeners: [],
+    lists: [],                // Array of all todo lists
+    selectedListId: null,     // ID of the currently selected list
+    theme: 'dark',            // Current theme ('dark' or 'light')
+    listeners: [],            // Functions to call when state changes
+
+    // Subscribe a function to state changes
     subscribe(fn) {
         this.listeners.push(fn);
     },
+    // Notify all listeners of a state change
     notify() {
         this.listeners.forEach(fn => fn());
     },
+    // Add a new list and select it
     addList(name) {
         const newList = { id: Date.now().toString(), name, todos: [] };
         this.lists.push(newList);
@@ -43,21 +50,24 @@ const AppState = {
         this.notify();
         return newList.id;
     },
+    // Select a list by ID
     selectList(id) {
         this.selectedListId = id;
         this.saveState();
         this.notify();
     },
+    // Add a new todo to the selected list
     addTodo(text) {
         const list = this.lists.find(l => l.id === this.selectedListId);
         if (list) {
-            list.todos.push({ text, completed: false });
+            list.todos.push({ text, completed: false, editing: false }); // <-- add editing: false
             this.saveState();
             this.notify();
             return list.todos.length - 1;
         }
         return null;
     },
+    // Delete a todo by index from the selected list
     deleteTodo(index) {
         const list = this.lists.find(l => l.id === this.selectedListId);
         if (list) {
@@ -66,6 +76,7 @@ const AppState = {
             this.notify();
         }
     },
+    // Edit a todo's text and exit edit mode
     editTodo(index, newText) {
         const list = this.lists.find(l => l.id === this.selectedListId);
         if (list && list.todos[index]) {
@@ -73,9 +84,9 @@ const AppState = {
             list.todos[index].editing = false;
             this.saveState();
             this.notify();
-            // Callback removed here to avoid double-calling
         }
     },
+    // Edit a list's name and exit edit mode
     editListName(id, newName) {
         const list = this.lists.find(l => l.id === id);
         if (list) {
@@ -83,9 +94,9 @@ const AppState = {
             list.editing = false;
             this.saveState();
             this.notify();
-            // Callback removed here to avoid double-calling
         }
     },
+    // Toggle a todo's completed state
     toggleTodo(index, completed) {
         const list = this.lists.find(l => l.id === this.selectedListId);
         if (list) {
@@ -94,6 +105,7 @@ const AppState = {
             this.notify();
         }
     },
+    // Save current state to localStorage
     saveState() {
         const state = {
             lists: this.lists,
@@ -102,12 +114,14 @@ const AppState = {
         };
         localStorage.setItem(APP_STATE_KEY, JSON.stringify(state));
     },
+    // Load state from localStorage
     loadState() {
         const state = JSON.parse(localStorage.getItem(APP_STATE_KEY) || '{}');
         this.lists = Array.isArray(state.lists) ? state.lists : [];
         this.selectedListId = state.selectedListId || null;
         this.theme = state.theme || 'dark';
     },
+    // Change theme and notify listeners
     setTheme(theme) {
         this.theme = theme;
         this.saveState();
@@ -117,6 +131,8 @@ const AppState = {
 // #endregion
 
 // #region Action Dispatcher
+// Central function to handle all user actions using a switch statement.
+// This keeps logic organized and makes it easy to add new actions.
 function dispatchAction(type, payload) {
     switch (type) {
         case 'ADD_LIST': {
@@ -175,13 +191,16 @@ function dispatchAction(type, payload) {
 // #endregion
 
 // #region View
+// Handles all DOM rendering and updates. This is the "View" in MVC.
 const View = {
-    todoForm: document.querySelector('form'),
-    todoInput: document.getElementById('todo-input'),
-    todoListUL: document.getElementById('todo-list'),
-    themeToggle: document.getElementById("theme-toggle"),
-    body: document.body,
-    homepage: null,
+    todoForm: document.querySelector('form'),           // Reference to the todo form
+    todoInput: document.getElementById('todo-input'),   // Input field for new todos
+    todoListUL: document.getElementById('todo-list'),   // UL element for todos
+    themeToggle: document.getElementById("theme-toggle"), // Theme toggle checkbox
+    body: document.body,                               // Reference to <body>
+    homepage: null,                                    // Homepage container
+
+    // Render the homepage with all lists and new list creation
     renderHomepage() {
         if (this.todoForm) this.todoForm.style.display = 'none';
         if (this.todoListUL) this.todoListUL.style.display = 'none';
@@ -229,6 +248,7 @@ const View = {
                 const li = document.createElement('li');
                 li.className = 'list-item flex-center';
                 if (list.editing) {
+                    // Edit mode for list name
                     const editInput = document.createElement('input');
                     editInput.type = 'text';
                     editInput.value = list.name;
@@ -243,6 +263,7 @@ const View = {
                     li.appendChild(editInput);
                     li.appendChild(saveBtn);
                 } else {
+                    // Normal mode for list
                     const nameSpan = document.createElement('span');
                     nameSpan.textContent = list.name;
                     nameSpan.style.flexGrow = '1';
@@ -251,7 +272,7 @@ const View = {
                     editBtn.innerHTML = `<img src="assets/image/edit_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg" alt="Edit">`;
                     editBtn.onclick = (e) => {
                         e.stopPropagation();
-                        // Set all lists' editing to false except the one being edited
+                        // Only one list can be in edit mode at a time
                         AppState.lists.forEach(l => l.editing = false);
                         list.editing = true;
                         AppState.notify();
@@ -269,6 +290,8 @@ const View = {
             this.homepage.appendChild(ul);
         }
     },
+
+    // Render todos for the selected list
     renderTodos() {
         if (this.homepage) this.homepage.style.display = 'none';
         if (this.todoForm) this.todoForm.style.display = '';
@@ -287,25 +310,29 @@ const View = {
         this.todoListUL.innerHTML = '';
         const list = AppState.lists.find(l => l.id === AppState.selectedListId);
         if (!list) return;
+        console.log(list.todos.map(t => t.editing)); // Add this before rendering todos
         list.todos.forEach((todo, i) => {
             const todoId = 'todo-' + i;
             const todoLI = document.createElement('li');
             todoLI.className = 'todo';
             if (todo.editing) {
+                // Edit mode for todo
                 const editInput = document.createElement('input');
                 editInput.type = 'text';
                 editInput.value = todo.text;
                 editInput.className = 'edit-input';
-                editInput.autoFocus = true;
+                editInput.autofocus = true;
                 const saveBtn = document.createElement('button');
                 saveBtn.textContent = 'Save';
                 saveBtn.className = 'save-edit-button';
                 saveBtn.onclick = () => {
                     dispatchAction('EDIT_TODO', { index: i, newText: editInput.value.trim() });
                 };
+                // Append input first, then save button
                 todoLI.appendChild(editInput);
                 todoLI.appendChild(saveBtn);
             } else {
+                // Normal mode for todo
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.id = todoId;
@@ -323,7 +350,7 @@ const View = {
                 editBtn.innerHTML = `<img src="assets/image/edit_24dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg" alt="Edit">`;
                 editBtn.onclick = (e) => {
                     e.stopPropagation();
-                    // Set all todos' editing to false except the one being edited
+                    // Only one todo can be in edit mode at a time
                     list.todos.forEach(t => t.editing = false);
                     todo.editing = true;
                     AppState.notify();
@@ -346,6 +373,8 @@ const View = {
             View.todoListUL.appendChild(todoLI);
         });
     },
+
+    // Render the theme (light/dark) based on app state
     renderTheme() {
         if (AppState.theme === "light") {
             this.body.classList.add("light-theme");
@@ -359,11 +388,13 @@ const View = {
 // #endregion
 
 // #region Controller
+// Handles app startup and event listener registration.
+// Ensures initialization only happens once.
 const Controller = {
-    _initialized: false, // Add this flag
+    _initialized: false, // Prevents multiple init calls
 
     init() {
-        if (this._initialized) return; // Prevent multiple init calls
+        if (this._initialized) return; // Only run once
         this._initialized = true;
 
         AppState.loadState();
@@ -373,6 +404,7 @@ const Controller = {
         } else {
             View.renderTodos();
         }
+        // Subscribe to state changes and re-render UI
         AppState.subscribe(() => {
             if (!AppState.selectedListId) {
                 View.renderHomepage();
@@ -381,6 +413,7 @@ const Controller = {
             }
             View.renderTheme();
         });
+        // Handle new todo submission
         View.todoForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const text = View.todoInput.value.trim();
@@ -389,6 +422,7 @@ const Controller = {
                 View.todoInput.value = '';
             }
         });
+        // Handle theme toggle
         View.themeToggle.addEventListener("change", () => {
             const newTheme = View.body.classList.contains("light-theme") ? "dark" : "light";
             dispatchAction('CHANGE_THEME', { theme: newTheme });
@@ -398,6 +432,7 @@ const Controller = {
 // #endregion
 
 // #region Init App
+// Shows a loading screen before initializing the app UI
 function showLoadingScreen() {
     let loading = document.getElementById('loading-screen');
     if (!loading) {
@@ -421,16 +456,19 @@ function showLoadingScreen() {
     loading.style.display = '';
 }
 
+// Hides the loading screen
 function hideLoadingScreen() {
     const loading = document.getElementById('loading-screen');
     if (loading) loading.style.display = 'none';
 }
 
+// Loads the homepage after loading screen
 function loadHomepage(data) {
     hideLoadingScreen();
     View.renderHomepage();
 }
 
+// Show loading screen, then initialize app after 2-5 seconds
 showLoadingScreen();
 setTimeout(() => {
     Controller.init();
@@ -438,7 +476,7 @@ setTimeout(() => {
 }, Math.floor(Math.random() * 3000) + 2000);
 // #endregion
 
-// Example usage of callbacks and checking they work
+// Example usage of callbacks for debugging and extension
 setOnListSelected((id) => {
     console.log('List selected:', id);
 });

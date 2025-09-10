@@ -1,4 +1,4 @@
- /* Main CSS file for the ToDo App */
+/* Main CSS file for the ToDo App */
 /* #region dark mode light mode */
 :root {
   --background: #101114;
@@ -305,6 +305,7 @@ body {
 /* Edit input field styles */
 .edit-input {
   flex-grow: 1;
+  display: block !important;
   padding: 12px 15px;
   margin: 0 8px;
   border: 2px solid var(--accent-color);
@@ -315,6 +316,7 @@ body {
   outline: none;
   box-shadow: 0 2px 8px rgba(0,0,0,0.07);
   transition: border 0.2s, background 0.2s, box-shadow 0.2s;
+  
 }
 .edit-input:focus {
   border-color: var(--secondary-color);
@@ -331,7 +333,7 @@ body {
   font: inherit;
   font-weight: 600;
   cursor: pointer;
-  margin-left: 8px;
+  margin-left: auto;
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   letter-spacing: 0.5px;
   transition: background 0.2s, color 0.2s, box-shadow 0.2s;
