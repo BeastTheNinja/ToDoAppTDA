@@ -2,17 +2,15 @@
 // Central registry for callback functions triggered by key app events.
 // These allow you to hook into app logic for analytics, UI feedback, etc.
 const Callbacks = {
-    onListSelected: null,   // Called when a list is selected
-    onTodoEdited: null,     // Called when a todo is edited
-    onThemeChanged: null,   // Called when theme changes
-    onListEdited: null,     // Called when a list name is edited
-    onListAdded: null,      // Called when a list is added
-    onTodoAdded: null,      // Called when a todo is added
-    onTodoDeleted: null,    // Called when a todo is deleted
-    onListDeleted: null,    // Called when a list is deleted
+    onListSelected: null,
+    onTodoEdited: null,
+    onThemeChanged: null,
+    onListEdited: null,
+    onListAdded: null,
+    onTodoAdded: null,
+    onTodoDeleted: null,
+    onListDeleted: null,
 };
-
-// Functions to register (set) callbacks for each event
 function setOnListSelected(fn) { Callbacks.onListSelected = fn; }
 function setOnTodoEdited(fn) { Callbacks.onTodoEdited = fn; }
 function setOnThemeChanged(fn) { Callbacks.onThemeChanged = fn; }
@@ -24,24 +22,21 @@ function setOnListDeleted(fn) { Callbacks.onListDeleted = fn; }
 // #endregion
 
 // #region App State (Model)
-// This object holds all app data and methods to manipulate it.
-// It acts as the "Model" in MVC, storing lists, todos, theme, and notifying listeners.
+// Holds all app data and methods to manipulate it.
 const APP_STATE_KEY = 'appState';
 const AppState = {
-    lists: [],                // Array of all todo lists
-    selectedListId: null,     // ID of the currently selected list
-    theme: 'dark',            // Current theme ('dark' or 'light')
-    listeners: [],            // Functions to call when state changes
+    lists: [],
+    selectedListId: null,
+    theme: 'dark',
+    listeners: [],
+    uiState: 'loading', // Tracks current UI state: 'loading', 'homepage', 'list'
 
-    // Subscribe a function to state changes
     subscribe(fn) {
         this.listeners.push(fn);
     },
-    // Notify all listeners of a state change
     notify() {
         this.listeners.forEach(fn => fn());
     },
-    // Add a new list and select it
     addList(name) {
         const newList = { id: Date.now().toString(), name, todos: [] };
         this.lists.push(newList);
@@ -50,24 +45,21 @@ const AppState = {
         this.notify();
         return newList.id;
     },
-    // Select a list by ID
     selectList(id) {
         this.selectedListId = id;
         this.saveState();
         this.notify();
     },
-    // Add a new todo to the selected list
     addTodo(text) {
         const list = this.lists.find(l => l.id === this.selectedListId);
         if (list) {
-            list.todos.push({ text, completed: false, editing: false }); // <-- add editing: false
+            list.todos.push({ text, completed: false, editing: false });
             this.saveState();
             this.notify();
             return list.todos.length - 1;
         }
         return null;
     },
-    // Delete a todo by index from the selected list
     deleteTodo(index) {
         const list = this.lists.find(l => l.id === this.selectedListId);
         if (list) {
@@ -76,7 +68,6 @@ const AppState = {
             this.notify();
         }
     },
-    // Edit a todo's text and exit edit mode
     editTodo(index, newText) {
         const list = this.lists.find(l => l.id === this.selectedListId);
         if (list && list.todos[index]) {
@@ -86,7 +77,6 @@ const AppState = {
             this.notify();
         }
     },
-    // Edit a list's name and exit edit mode
     editListName(id, newName) {
         const list = this.lists.find(l => l.id === id);
         if (list) {
@@ -96,7 +86,6 @@ const AppState = {
             this.notify();
         }
     },
-    // Toggle a todo's completed state
     toggleTodo(index, completed) {
         const list = this.lists.find(l => l.id === this.selectedListId);
         if (list) {
@@ -105,7 +94,6 @@ const AppState = {
             this.notify();
         }
     },
-    // Save current state to localStorage
     saveState() {
         const state = {
             lists: this.lists,
@@ -114,14 +102,12 @@ const AppState = {
         };
         localStorage.setItem(APP_STATE_KEY, JSON.stringify(state));
     },
-    // Load state from localStorage
     loadState() {
         const state = JSON.parse(localStorage.getItem(APP_STATE_KEY) || '{}');
         this.lists = Array.isArray(state.lists) ? state.lists : [];
         this.selectedListId = state.selectedListId || null;
         this.theme = state.theme || 'dark';
     },
-    // Change theme and notify listeners
     setTheme(theme) {
         this.theme = theme;
         this.saveState();
@@ -131,23 +117,27 @@ const AppState = {
 // #endregion
 
 // #region Action Dispatcher
-// Central function to handle all user actions using a switch statement.
-// This keeps logic organized and makes it easy to add new actions.
+// Handles all user actions using a switch statement.
 function dispatchAction(type, payload) {
     switch (type) {
         case 'ADD_LIST': {
             const id = AppState.addList(payload.name);
+            AppState.uiState = 'list';
             if (typeof Callbacks.onListAdded === 'function') Callbacks.onListAdded(id, payload.name);
+            AppState.notify();
             break;
         }
         case 'SELECT_LIST': {
             AppState.selectList(payload.id);
+            AppState.uiState = 'list';
             if (typeof Callbacks.onListSelected === 'function') Callbacks.onListSelected(payload.id);
+            AppState.notify();
             break;
         }
         case 'EDIT_LIST': {
             AppState.editListName(payload.id, payload.newName);
             if (typeof Callbacks.onListEdited === 'function') Callbacks.onListEdited(payload.id, payload.newName);
+            AppState.notify();
             break;
         }
         case 'DELETE_LIST': {
@@ -157,30 +147,41 @@ function dispatchAction(type, payload) {
         case 'ADD_TODO': {
             const index = AppState.addTodo(payload.text);
             if (typeof Callbacks.onTodoAdded === 'function') Callbacks.onTodoAdded(index, payload.text);
+            AppState.notify();
             break;
         }
         case 'EDIT_TODO': {
             AppState.editTodo(payload.index, payload.newText);
             if (typeof Callbacks.onTodoEdited === 'function') Callbacks.onTodoEdited(payload.index, payload.newText);
+            AppState.notify();
             break;
         }
         case 'DELETE_TODO': {
             AppState.deleteTodo(payload.index);
             if (typeof Callbacks.onTodoDeleted === 'function') Callbacks.onTodoDeleted(payload.index);
+            AppState.notify();
             break;
         }
         case 'TOGGLE_TODO': {
             AppState.toggleTodo(payload.index, payload.completed);
+            AppState.notify();
             break;
         }
         case 'CHANGE_THEME': {
             AppState.setTheme(payload.theme);
             if (typeof Callbacks.onThemeChanged === 'function') Callbacks.onThemeChanged(payload.theme);
+            AppState.notify();
             break;
         }
         case 'BACK_HOME': {
             AppState.selectedListId = null;
+            AppState.uiState = 'homepage';
             AppState.saveState();
+            AppState.notify();
+            break;
+        }
+        case 'SHOW_LOADING': {
+            AppState.uiState = 'loading';
             AppState.notify();
             break;
         }
@@ -191,16 +192,15 @@ function dispatchAction(type, payload) {
 // #endregion
 
 // #region View
-// Handles all DOM rendering and updates. This is the "View" in MVC.
+// Handles all DOM rendering and updates.
 const View = {
-    todoForm: document.querySelector('form'),           // Reference to the todo form
-    todoInput: document.getElementById('todo-input'),   // Input field for new todos
-    todoListUL: document.getElementById('todo-list'),   // UL element for todos
-    themeToggle: document.getElementById("theme-toggle"), // Theme toggle checkbox
-    body: document.body,                               // Reference to <body>
-    homepage: null,                                    // Homepage container
+    todoForm: document.querySelector('form'),
+    todoInput: document.getElementById('todo-input'),
+    todoListUL: document.getElementById('todo-list'),
+    themeToggle: document.getElementById("theme-toggle"),
+    body: document.body,
+    homepage: null,
 
-    // Render the homepage with all lists and new list creation
     renderHomepage() {
         if (this.todoForm) this.todoForm.style.display = 'none';
         if (this.todoListUL) this.todoListUL.style.display = 'none';
@@ -291,7 +291,6 @@ const View = {
         }
     },
 
-    // Render todos for the selected list
     renderTodos() {
         if (this.homepage) this.homepage.style.display = 'none';
         if (this.todoForm) this.todoForm.style.display = '';
@@ -310,7 +309,6 @@ const View = {
         this.todoListUL.innerHTML = '';
         const list = AppState.lists.find(l => l.id === AppState.selectedListId);
         if (!list) return;
-        console.log(list.todos.map(t => t.editing)); // Add this before rendering todos
         list.todos.forEach((todo, i) => {
             const todoId = 'todo-' + i;
             const todoLI = document.createElement('li');
@@ -328,7 +326,6 @@ const View = {
                 saveBtn.onclick = () => {
                     dispatchAction('EDIT_TODO', { index: i, newText: editInput.value.trim() });
                 };
-                // Append input first, then save button
                 todoLI.appendChild(editInput);
                 todoLI.appendChild(saveBtn);
             } else {
@@ -374,7 +371,6 @@ const View = {
         });
     },
 
-    // Render the theme (light/dark) based on app state
     renderTheme() {
         if (AppState.theme === "light") {
             this.body.classList.add("light-theme");
@@ -383,6 +379,34 @@ const View = {
             this.body.classList.remove("light-theme");
             this.themeToggle.checked = false;
         }
+    },
+
+    renderLoadingScreen() {
+        let loading = document.getElementById('loading-screen');
+        if (!loading) {
+            loading = document.createElement('div');
+            loading.id = 'loading-screen';
+            loading.className = 'loading-screen';
+            loading.innerHTML = `
+                <div class="loading-content">
+                    <div class="logo-placeholder">
+                        <svg width="7rem" height="7rem" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="50" cy="50" r="50" fill="var(--accent-color)" />
+                            <text x="50" y="58" text-anchor="middle" fill="var(--background)" font-size="2.7rem" font-family="Segoe UI, Arial" dy=".3em" dominant-baseline="middle">TDA</text>
+                        </svg>
+                    </div>
+                    <h1 class="loading-title">ToDoApp</h1>
+                    <div class="loading-spinner"></div>
+                </div>
+            `;
+            document.body.appendChild(loading);
+        }
+        loading.style.display = '';
+    },
+
+    hideLoadingScreen() {
+        const loading = document.getElementById('loading-screen');
+        if (loading) loading.style.display = 'none';
     }
 };
 // #endregion
@@ -398,22 +422,27 @@ const Controller = {
         this._initialized = true;
 
         AppState.loadState();
+        AppState.uiState = AppState.selectedListId ? 'list' : 'homepage';
         View.renderTheme();
-        if (!AppState.selectedListId) {
-            View.renderHomepage();
-        } else {
-            View.renderTodos();
-        }
-        // Subscribe to state changes and re-render UI
+
+        // Main render logic based on UI state
         AppState.subscribe(() => {
-            if (!AppState.selectedListId) {
-                View.renderHomepage();
-            } else {
-                View.renderTodos();
+            switch (AppState.uiState) {
+                case 'loading':
+                    View.renderLoadingScreen();
+                    break;
+                case 'homepage':
+                    View.hideLoadingScreen();
+                    View.renderHomepage();
+                    break;
+                case 'list':
+                    View.hideLoadingScreen();
+                    View.renderTodos();
+                    break;
             }
             View.renderTheme();
         });
-        // Handle new todo submission
+
         View.todoForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const text = View.todoInput.value.trim();
@@ -422,7 +451,7 @@ const Controller = {
                 View.todoInput.value = '';
             }
         });
-        // Handle theme toggle
+
         View.themeToggle.addEventListener("change", () => {
             const newTheme = View.body.classList.contains("light-theme") ? "dark" : "light";
             dispatchAction('CHANGE_THEME', { theme: newTheme });
@@ -432,47 +461,11 @@ const Controller = {
 // #endregion
 
 // #region Init App
-// Shows a loading screen before initializing the app UI
-function showLoadingScreen() {
-    let loading = document.getElementById('loading-screen');
-    if (!loading) {
-        loading = document.createElement('div');
-        loading.id = 'loading-screen';
-        loading.className = 'loading-screen';
-        loading.innerHTML = `
-            <div class="loading-content">
-                <div class="logo-placeholder">
-                    <svg width="7rem" height="7rem" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="50" cy="50" r="50" fill="var(--accent-color)" />
-                        <text x="50" y="58" text-anchor="middle" fill="var(--background)" font-size="2.7rem" font-family="Segoe UI, Arial" dy=".3em" dominant-baseline="middle">TDA</text>
-                    </svg>
-                </div>
-                <h1 class="loading-title">ToDoApp</h1>
-                <div class="loading-spinner"></div>
-            </div>
-        `;
-        document.body.appendChild(loading);
-    }
-    loading.style.display = '';
-}
-
-// Hides the loading screen
-function hideLoadingScreen() {
-    const loading = document.getElementById('loading-screen');
-    if (loading) loading.style.display = 'none';
-}
-
-// Loads the homepage after loading screen
-function loadHomepage(data) {
-    hideLoadingScreen();
-    View.renderHomepage();
-}
-
-// Show loading screen, then initialize app after 2-5 seconds
-showLoadingScreen();
+View.renderLoadingScreen();
 setTimeout(() => {
     Controller.init();
-    loadHomepage(AppState.lists);
+    AppState.uiState = AppState.selectedListId ? 'list' : 'homepage';
+    AppState.notify();
 }, Math.floor(Math.random() * 3000) + 2000);
 // #endregion
 
