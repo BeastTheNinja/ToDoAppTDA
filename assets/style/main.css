@@ -568,6 +568,22 @@ input:checked + .slider:before {
     max-width: 8rem;
     font-size: 1rem;
   }
+  .list-item {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 1rem 0.5rem;
+  }
+  .edit-input {
+    width: 100%;
+    margin: 0 0 0.5rem 0;
+    box-sizing: border-box;
+  }
+  .save-edit-button {
+    width: 100%;
+    margin-left: 0;
+    margin-bottom: 0.5rem;
+    box-sizing: border-box;
+  }
   .switch {
     top: 1.25rem;
     right: 5vw;
