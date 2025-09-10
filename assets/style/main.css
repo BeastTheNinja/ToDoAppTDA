@@ -537,37 +537,14 @@ input:checked + .slider:before {
 /* #endregion */
 
 /* #region Responsive styles */
-@media(max-width: 36rem) {
-  html {
-    font-size: 0.85rem;
-  }
-  h1 {
-    margin-top: 3rem;
-    font-size: 2rem;
-  }
-  .wrapper {
-    width: 90vw;
-    max-width: 100vw;
-  }
-  .new-list-input, #todo-input {
-    width: 100%;
-    max-width: 100vw;
-    font-size: 1rem;
-  }
-  .modal-content {
-    padding: 1rem;
-    font-size: 1rem;
-    min-width: unset;
-  }
-  .todo .todo-text {
-    padding: 0.625rem 0.3125rem;
-    font-size: 0.95rem;
-    max-width: 60vw;
-  }
-  .list-item span {
-    max-width: 8rem;
-    font-size: 1rem;
-  }
+
+/* Small phones: up to 375px wide */
+@media (max-width: 23.4375rem) {
+  html { font-size: 0.75rem; }
+  .wrapper { width: 98vw; }
+  .list-item span { max-width: 5rem; }
+  .modal-content { padding: 0.5rem; font-size: 0.95rem; }
+  .edit-input, .save-edit-button { font-size: 1rem; }
   .list-item {
     flex-direction: column !important;
     align-items: stretch !important;
@@ -584,17 +561,94 @@ input:checked + .slider:before {
     margin-bottom: 0.5rem;
     box-sizing: border-box;
   }
-  .switch {
-    top: 1.25rem;
-    right: 5vw;
-    max-width: 3rem;
-    height: 1.875rem;
+}
+
+/* Large phones: up to 480px wide */
+@media (min-width: 23.5rem) and (max-width: 30rem) {
+  html { font-size: 0.85rem; }
+  .wrapper { width: 95vw; }
+  .list-item span { max-width: 7rem; }
+  .modal-content { padding: 0.75rem; font-size: 1rem; }
+  .edit-input, .save-edit-button { font-size: 1.05rem; }
+  .list-item {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 1rem 0.5rem;
   }
-  .slider:before {
-    height: 1.375rem;
-    width: 1.375rem;
-    left: 0.25rem;
-    bottom: 0.25rem;
+  .edit-input {
+    width: 100%;
+    margin: 0 0 0.5rem 0;
+    box-sizing: border-box;
+  }
+  .save-edit-button {
+    width: 100%;
+    margin-left: 0;
+    margin-bottom: 0.5rem;
+    box-sizing: border-box;
+  }
+}
+
+/* Tablets: up to 768px wide */
+@media (min-width: 30.01rem) and (max-width: 48rem) {
+  html { font-size: 1rem; }
+  .wrapper { width: 90vw; }
+  .list-item span { max-width: 10rem; }
+  .modal-content { padding: 1rem; font-size: 1.1rem; }
+  .edit-input, .save-edit-button { font-size: 1.1rem; }
+  .list-item {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: 1rem 0.5rem;
+  }
+  .edit-input {
+    width: 100%;
+    margin: 0 0 0.5rem 0;
+    box-sizing: border-box;
+  }
+  .save-edit-button {
+    width: 100%;
+    margin-left: 0;
+    margin-bottom: 0.5rem;
+    box-sizing: border-box;
+  }
+}
+
+/* Small laptops: up to 1024px wide */
+@media (min-width: 48.01rem) and (max-width: 64rem) {
+  html { font-size: 1.05rem; }
+  .wrapper { width: 80vw; max-width: 44rem; }
+  .list-item span { max-width: 12rem; }
+  .modal-content { padding: 1.5rem; font-size: 1.15rem; }
+  .edit-input, .save-edit-button { font-size: 1.15rem; }
+  /* For laptops, keep row layout */
+  .list-item {
+    flex-direction: row !important;
+    align-items: center !important;
+    padding: 1rem 1.5rem;
+  }
+  .edit-input, .save-edit-button {
+    width: auto;
+    margin: 0 0.5rem 0 0;
+    box-sizing: border-box;
+  }
+}
+
+/* Large laptops and desktops: above 1024px */
+@media (min-width: 64.01rem) {
+  html { font-size: 1.1rem; }
+  .wrapper { width: 44rem; max-width: 100vw; }
+  .list-item span { max-width: 14rem; }
+  .modal-content { padding: 2rem; font-size: 1.2rem; }
+  .edit-input, .save-edit-button { font-size: 1.2rem; }
+  .list-item {
+    flex-direction: row !important;
+    align-items: center !important;
+    padding: 1rem 1.5rem;
+  }
+  .edit-input, .save-edit-button {
+    width: auto;
+    margin: 0 0.5rem 0 0;
+    box-sizing: border-box;
   }
 }
 /* #endregion */
