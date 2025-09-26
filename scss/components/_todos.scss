@@ -7,7 +7,6 @@
   background-color: var(--primary-color);
   border-radius: $border-radius-lg;
   @include flex-center;
-  border-left: 0.5rem solid var(--accent-color);
 
   input {
     display: none;
