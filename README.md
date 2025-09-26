@@ -13,6 +13,7 @@ A simple task management web app built with HTML, CSS, and JavaScript, created f
 ## Technologies Used
 
 - HTML
+- SCSS
 - CSS
 - JavaScript
 - LocalStorage (browser)
