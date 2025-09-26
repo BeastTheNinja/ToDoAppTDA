@@ -1,0 +1,81 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+.create-list-container {
+  @include flex-column-center;
+  gap: 0.75rem;
+  margin: $spacing-xl 0 $spacing-lg 0;
+}
+
+.empty-msg {
+  color: var(--accent-color);
+  font-size: 1.2rem;
+  margin-bottom: $spacing-sm;
+  text-align: center;
+}
+
+.homepage h2 {
+  color: var(--accent-color);
+  margin-bottom: $spacing-md;
+  text-align: center;
+}
+
+.list-selector {
+  list-style: none;
+  padding: 0;
+  margin: 0 auto;
+  max-width: 25rem;
+}
+
+.list-item {
+  @include card;
+  color: var(--text-color);
+  margin-bottom: 0.625rem;
+  padding: $spacing-md $spacing-lg;
+  font-size: $font-size-large;
+  font-weight: $font-weight-medium;
+  cursor: pointer;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  border-left: 0.5rem solid var(--accent-color);
+
+  &:hover {
+    background: var(--accent-color);
+    color: var(--background);
+    box-shadow: $shadow-strong;
+  }
+
+  span {
+    @include text-ellipsis;
+  }
+}
+
+.flex-center {
+  @include flex-center;
+}
+
+// Tags and colors
+.list-tags {
+  display: flex;
+  gap: $spacing-sm;
+  margin-right: $spacing-md;
+}
+
+.tag {
+  background: var(--accent-color);
+  color: var(--background);
+  border-radius: $border-radius-full;
+  padding: 0.15rem 0.75rem;
+  font-size: $font-size-small;
+  font-weight: $font-weight-semibold;
+  margin-right: $spacing-xs;
+  letter-spacing: 0.5px;
+  opacity: 0.85;
+}
+
+.list-summary {
+  font-size: 0.95em;
+  color: var(--accent-color);
+  margin-left: $spacing-md;
+}

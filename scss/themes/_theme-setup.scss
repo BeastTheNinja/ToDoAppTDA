@@ -1,0 +1,18 @@
+@use '../abstracts/variables' as *;
+
+:root {
+  --background: #{$dark-background};
+  --primary-color: #{$dark-primary-color};
+  --secondary-color: #{$dark-secondary-color};
+  --accent-color: #{$dark-accent-color};
+  --text-color: #{$dark-text-color};
+  --max-content-width: #{$max-content-width};
+}
+
+.light-theme {
+  --background: #{$light-background};
+  --primary-color: #{$light-primary-color};
+  --secondary-color: #{$light-secondary-color};
+  --accent-color: #{$light-accent-color};
+  --text-color: #{$light-text-color};
+}

@@ -1,0 +1,123 @@
+@use 'variables' as *;
+
+// Button Mixins
+@mixin button-base {
+  border: none;
+  font: inherit;
+  cursor: pointer;
+  transition: background $transition-fast, color $transition-fast, box-shadow $transition-fast;
+  outline: none;
+  
+  &:focus {
+    outline: 0.125rem solid var(--accent-color);
+    outline-offset: 0.125rem;
+  }
+}
+
+@mixin button-primary {
+  @include button-base;
+  background-color: var(--accent-color);
+  color: var(--background);
+  border-radius: $border-radius-full;
+  padding: 0.625rem 2rem;
+  font-weight: $font-weight-semibold;
+  box-shadow: $shadow-medium;
+  letter-spacing: 0.5px;
+  
+  &:hover {
+    background-color: var(--secondary-color);
+    color: var(--accent-color);
+    box-shadow: $shadow-strong;
+  }
+}
+
+@mixin button-icon($size: 2.75rem) {
+  @include button-base;
+  background: none;
+  padding: 0.1875rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-width: $size;
+  min-height: $size;
+  
+  img {
+    transition: 200ms ease;
+    width: 1.5rem;
+    height: 1.5rem;
+  }
+}
+
+// Input Mixins
+@mixin input-base {
+  font: inherit;
+  color: var(--text-color);
+  background: var(--primary-color);
+  border: 0.125rem solid var(--accent-color);
+  outline: none;
+  box-shadow: $shadow-light;
+  transition: border $transition-fast, background $transition-fast, box-shadow $transition-fast;
+  
+  &:focus {
+    border-color: var(--secondary-color);
+    background: var(--background);
+    box-shadow: $shadow-strong;
+  }
+}
+
+// Layout Mixins
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+}
+
+@mixin flex-column-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+@mixin card {
+  background: var(--primary-color);
+  border-radius: $border-radius-md;
+  box-shadow: $shadow-light;
+  transition: background $transition-fast, color $transition-fast, box-shadow $transition-fast;
+}
+
+// Responsive Mixins
+@mixin respond-to($breakpoint) {
+  @if $breakpoint == xs {
+    @media (max-width: $breakpoint-xs) { @content; }
+  }
+  @if $breakpoint == sm {
+    @media (min-width: #{$breakpoint-xs + 0.01rem}) and (max-width: $breakpoint-sm) { @content; }
+  }
+  @if $breakpoint == md {
+    @media (min-width: #{$breakpoint-sm + 0.01rem}) and (max-width: $breakpoint-md) { @content; }
+  }
+  @if $breakpoint == lg {
+    @media (min-width: #{$breakpoint-md + 0.01rem}) and (max-width: $breakpoint-lg) { @content; }
+  }
+  @if $breakpoint == xl {
+    @media (min-width: #{$breakpoint-lg + 0.01rem}) { @content; }
+  }
+}
+
+// Animation Mixins
+@mixin fade-in {
+  animation: fadeIn 0.4s;
+}
+
+@mixin fade-out {
+  animation: fadeOut 0.4s forwards;
+}
+
+// Text Mixins
+@mixin text-ellipsis($max-width: 14rem) {
+  display: inline-block;
+  max-width: $max-width;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  vertical-align: middle;
+}

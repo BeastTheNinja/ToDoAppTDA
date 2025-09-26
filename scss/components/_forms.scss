@@ -1,0 +1,68 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+form {
+  position: relative;
+}
+
+#todo-input {
+  @include input-base;
+  box-sizing: border-box;
+  padding: 0.75rem 1.25rem;
+  width: 100%;
+  background: none;
+  border-radius: $border-radius-full;
+  caret-color: var(--accent-color);
+}
+
+#add-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: var(--accent-color);
+  height: 100%;
+  padding: 0 $spacing-xl;
+  border: none;
+  border-radius: $border-radius-full;
+  font: inherit;
+  font-weight: $font-weight-semibold;
+  color: var(--background);
+  cursor: pointer;
+}
+
+.new-list-input {
+  @include input-base;
+  width: 18rem;
+  max-width: 90vw;
+  padding: 0.75rem 1.125rem;
+  border-radius: $border-radius-full;
+  margin-bottom: $spacing-xs;
+}
+
+.edit-input {
+  @include input-base;
+  flex-grow: 1;
+  display: block !important;
+  padding: 0.75rem 0.9375rem;
+  margin: 0 $spacing-sm;
+  border-radius: $border-radius-sm;
+}
+
+// Due date inputs
+.due-date-input {
+  @include input-base;
+  margin-left: $spacing-md;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $border-radius-sm;
+}
+
+.due-date-display {
+  margin-left: $spacing-md;
+  font-size: 0.95em;
+  color: var(--accent-color);
+
+  &.overdue {
+    color: #ff3b3b;
+    font-weight: bold;
+  }
+}

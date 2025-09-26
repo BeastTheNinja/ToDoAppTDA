@@ -1,0 +1,60 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+.new-list-btn,
+.back-home-btn {
+  @include button-primary;
+}
+
+.back-home-btn {
+  margin-bottom: 1.125rem;
+  margin-top: $spacing-sm;
+  display: block;
+}
+
+.save-edit-button {
+  @include button-primary;
+  padding: $spacing-sm 1.25rem;
+  border-radius: $border-radius-sm;
+  margin-left: auto;
+}
+
+.edit-button {
+  @include button-icon;
+  background: var(--primary-color);
+  border-radius: $border-radius-sm;
+  box-shadow: $shadow-medium;
+  margin-right: $spacing-sm;
+  
+  img {
+    filter: grayscale(40%) brightness(1.2);
+  }
+  
+  &:hover {
+    background: var(--accent-color);
+    box-shadow: $shadow-strong;
+    
+    img {
+      filter: invert(30%) sepia(100%) saturate(10000%) hue-rotate(180deg) brightness(120%) contrast(120%);
+      transform: scale(1.15);
+    }
+  }
+}
+
+.delete-button,
+.delete-list-button {
+  @include button-icon;
+  
+  img {
+    filter: grayscale(40%) brightness(1.2);
+  }
+  
+  &:hover img {
+    filter: invert(30%) sepia(100%) saturate(10000%) hue-rotate(0deg) brightness(100%) contrast(100%);
+    transform: scale(1.1);
+  }
+}
+
+.delete-list-button {
+  margin-left: $spacing-sm;
+}

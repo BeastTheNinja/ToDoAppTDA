@@ -1,0 +1,240 @@
+@use '../abstracts/variables' as *;
+@use '../abstracts/mixins' as *;
+
+// Small phones: up to 375px wide
+@include respond-to(xs) {
+  html { 
+    font-size: 0.75rem; 
+  }
+  
+  .wrapper { 
+    width: 98vw; 
+  }
+  
+  .list-item span { 
+    max-width: 5rem; 
+  }
+  
+  .modal-content { 
+    padding: $spacing-sm; 
+    font-size: 0.95rem; 
+  }
+  
+  .edit-input, .save-edit-button { 
+    font-size: $font-size-base; 
+  }
+  
+  .list-item {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: $spacing-md $spacing-sm;
+  }
+  
+  .edit-input {
+    width: 100%;
+    margin: 0 0 $spacing-sm 0;
+    box-sizing: border-box;
+  }
+  
+  .save-edit-button {
+    width: 100%;
+    margin-left: 0;
+    margin-bottom: $spacing-sm;
+    box-sizing: border-box;
+  }
+}
+
+// Large phones: up to 480px wide
+@include respond-to(sm) {
+  html { 
+    font-size: $font-size-small; 
+  }
+  
+  .wrapper { 
+    width: 95vw; 
+  }
+  
+  .list-item span { 
+    max-width: 7rem; 
+  }
+  
+  .modal-content { 
+    padding: 0.75rem; 
+    font-size: $font-size-base; 
+  }
+  
+  .edit-input, .save-edit-button { 
+    font-size: 1.05rem; 
+  }
+  
+  .list-item {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: $spacing-md $spacing-sm;
+  }
+  
+  .edit-input {
+    width: 100%;
+    margin: 0 0 $spacing-sm 0;
+    box-sizing: border-box;
+  }
+  
+  .save-edit-button {
+    width: 100%;
+    margin-left: 0;
+    margin-bottom: $spacing-sm;
+    box-sizing: border-box;
+  }
+}
+
+// Tablets: up to 768px wide
+@include respond-to(md) {
+  html { 
+    font-size: $font-size-base; 
+  }
+  
+  .wrapper { 
+    width: 90vw; 
+  }
+  
+  .list-item span { 
+    max-width: 10rem; 
+  }
+  
+  .modal-content { 
+    padding: $spacing-md; 
+    font-size: $font-size-large; 
+  }
+  
+  .edit-input, .save-edit-button { 
+    font-size: $font-size-large; 
+  }
+  
+  .list-item {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    padding: $spacing-md $spacing-sm;
+  }
+  
+  .edit-input {
+    width: 100%;
+    margin: 0 0 $spacing-sm 0;
+    box-sizing: border-box;
+  }
+  
+  .save-edit-button {
+    width: 100%;
+    margin-left: 0;
+    margin-bottom: $spacing-sm;
+    box-sizing: border-box;
+  }
+}
+
+// Small laptops: up to 1024px wide
+@include respond-to(lg) {
+  html { 
+    font-size: 1.05rem; 
+  }
+  
+  .wrapper { 
+    width: 80vw; 
+    max-width: $max-content-width; 
+  }
+  
+  .list-item span { 
+    max-width: 12rem; 
+  }
+  
+  .modal-content { 
+    padding: $spacing-lg; 
+    font-size: 1.15rem; 
+  }
+  
+  .edit-input, .save-edit-button { 
+    font-size: 1.15rem; 
+  }
+  
+  .list-item {
+    flex-direction: row !important;
+    align-items: center !important;
+    padding: $spacing-md $spacing-lg;
+  }
+  
+  .edit-input, .save-edit-button {
+    width: auto;
+    margin: 0 $spacing-sm 0 0;
+    box-sizing: border-box;
+  }
+}
+
+// Large laptops and desktops: above 1024px
+@include respond-to(xl) {
+  html { 
+    font-size: 1.1rem; 
+  }
+  
+  .wrapper { 
+    width: $max-content-width; 
+    max-width: 100vw; 
+  }
+  
+  .list-item span { 
+    max-width: 14rem; 
+  }
+  
+  .modal-content { 
+    padding: $spacing-xl; 
+    font-size: 1.2rem; 
+  }
+  
+  .edit-input, .save-edit-button { 
+    font-size: 1.2rem; 
+  }
+  
+  .list-item {
+    flex-direction: row !important;
+    align-items: center !important;
+    padding: $spacing-md $spacing-lg;
+  }
+  
+  .edit-input, .save-edit-button {
+    width: auto;
+    margin: 0 $spacing-sm 0 0;
+    box-sizing: border-box;
+  }
+}
+
+// Switch responsive adjustments
+@include respond-to(xs) {
+  .switch {
+    top: 1.25rem;
+    right: 5vw;
+    max-width: 3rem;
+    height: 1.875rem;
+  }
+  
+  .slider:before {
+    height: 1.375rem;
+    width: 1.375rem;
+    left: $spacing-xs;
+    bottom: $spacing-xs;
+  }
+  
+  input:checked + .slider:before {
+    transform: translateX(1.25rem);
+  }
+  
+  .todo .todo-text {
+    padding: 0.625rem 0.3125rem;
+    font-size: 0.95rem;
+    max-width: 60vw;
+  }
+}
+
+@include respond-to(sm) {
+  .new-list-input, #todo-input {
+    width: 100%;
+    max-width: 100vw;
+    font-size: $font-size-base;
+  }
+}
