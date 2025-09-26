@@ -5,12 +5,17 @@
   border: none;
   font: inherit;
   cursor: pointer;
-  transition: background $transition-fast, color $transition-fast, box-shadow $transition-fast;
+  transition: background $transition-fast, color $transition-fast, box-shadow $transition-fast, transform $mobile-transition-fast;
   outline: none;
   
   &:focus {
     outline: 0.125rem solid var(--accent-color);
     outline-offset: 0.125rem;
+  }
+  
+  // Mobile tap feedback
+  &:active {
+    transform: scale(0.98);
   }
 }
 
@@ -28,6 +33,27 @@
     background-color: var(--secondary-color);
     color: var(--accent-color);
     box-shadow: $shadow-strong;
+    transform: translateY(-0.0625rem);
+  }
+}
+
+// Mobile-specific button
+@mixin button-mobile {
+  @include button-base;
+  background-color: var(--accent-color);
+  color: var(--background);
+  border-radius: $mobile-border-radius;
+  padding: $mobile-spacing-md $mobile-spacing-lg;
+  font-weight: $font-weight-semibold;
+  box-shadow: $mobile-shadow-medium;
+  letter-spacing: 0.3px;
+  font-size: $font-size-mobile-lg;
+  min-height: 3rem; // Better touch target
+  
+  &:hover, &:active {
+    background-color: var(--secondary-color);
+    color: var(--accent-color);
+    box-shadow: $mobile-shadow-strong;
   }
 }
 
@@ -40,11 +66,18 @@
   align-items: center;
   min-width: $size;
   min-height: $size;
+  border-radius: $border-radius-sm;
   
   img {
     transition: 200ms ease;
     width: 1.5rem;
     height: 1.5rem;
+  }
+  
+  // Mobile-specific hover effects
+  &:active {
+    background: var(--primary-color);
+    transform: scale(0.95);
   }
 }
 
@@ -65,25 +98,52 @@
   }
 }
 
-// Layout Mixins - FIXED
+// Mobile-specific input
+@mixin input-mobile {
+  @include input-base;
+  border-radius: $mobile-border-radius;
+  padding: $mobile-spacing-md $mobile-spacing-lg;
+  font-size: $font-size-mobile-lg;
+  min-height: 3rem; // Better touch target
+  box-shadow: $mobile-shadow-light;
+  
+  &:focus {
+    box-shadow: $mobile-shadow-strong;
+    transform: translateY(-0.0625rem);
+  }
+}
+
+// Layout Mixins
 @mixin flex-center {
   display: flex;
   align-items: center;
-  justify-content: center; // ← ADD THIS LINE
+  justify-content: center;
 }
 
 @mixin flex-column-center {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center; // ← ADD THIS LINE
+  justify-content: center;
 }
 
 @mixin card {
   background: var(--primary-color);
   border-radius: $border-radius-md;
   box-shadow: $shadow-light;
-  transition: background $transition-fast, color $transition-fast, box-shadow $transition-fast;
+  transition: background $transition-fast, color $transition-fast, box-shadow $transition-fast, transform $mobile-transition-fast;
+}
+
+// Mobile-specific card
+@mixin card-mobile {
+  background: var(--primary-color);
+  border-radius: $mobile-border-radius-lg;
+  box-shadow: $mobile-shadow-medium;
+  transition: background $mobile-transition-medium, color $mobile-transition-medium, box-shadow $mobile-transition-medium, transform $mobile-transition-fast;
+  
+  &:active {
+    transform: scale(0.99);
+  }
 }
 
 // Responsive Mixins
@@ -105,13 +165,27 @@
   }
 }
 
+// Mobile-only mixin
+@mixin mobile-only {
+  @media (max-width: $breakpoint-sm) { @content; }
+}
+
+// Desktop-only mixin
+@mixin desktop-only {
+  @media (min-width: #{$breakpoint-md + 0.01rem}) { @content; }
+}
+
 // Animation Mixins
 @mixin fade-in {
-  animation: fadeIn 0.4s;
+  animation: fadeIn 0.4s ease-out;
 }
 
 @mixin fade-out {
-  animation: fadeOut 0.4s forwards;
+  animation: fadeOut 0.4s ease-in forwards;
+}
+
+@mixin slide-up {
+  animation: slideUp 0.3s ease-out;
 }
 
 // Text Mixins
@@ -122,4 +196,13 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   vertical-align: middle;
+}
+
+// Mobile text ellipsis
+@mixin text-ellipsis-mobile($max-width: 70vw) {
+  display: block;
+  max-width: $max-width;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
