@@ -65,16 +65,18 @@
   }
 }
 
-// Layout Mixins
+// Layout Mixins - FIXED
 @mixin flex-center {
   display: flex;
   align-items: center;
+  justify-content: center; // ← ADD THIS LINE
 }
 
 @mixin flex-column-center {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center; // ← ADD THIS LINE
 }
 
 @mixin card {
